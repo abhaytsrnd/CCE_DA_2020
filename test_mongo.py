@@ -1,9 +1,5 @@
 import csv
-import json
-import pandas as pd
-import sys, getopt, pprint
 from pymongo import MongoClient
-#CSV to JSON Conversion
 csvfile = open('Automobiles_price_mileage_country.csv', 'r')
 reader = csv.DictReader( csvfile )
 mongo_client=MongoClient()
