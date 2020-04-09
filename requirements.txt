@@ -1,2 +1,3 @@
 pandas
-dash
+dash==1.10.0
+dash_table==4.6.2
