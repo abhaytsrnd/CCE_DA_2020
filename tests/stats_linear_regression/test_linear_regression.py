@@ -19,11 +19,16 @@ class TestLinearRegression(TestCase):
     def tearDown(self):
         logging.info("TearDown TestLinearRegression!!")
 
-    def test_run_success(self):
-        print("Test 1")
+    def test_linear_model_bivariate(self):
+        x = [1,2,3,4,5,6,7,8,9,10]
+        y = [7.50,44.31,60.80,148.97,225.50,262.64,289.06,451.53,439.62,698.88]
+        data = [x]
+        actual = [69.09484848484848, -117.14066666666645]
+        expected = LinearRegression.model(data, y)
+        self.assertEqual(expected, actual)
 
-    def test_run_success_2(self):
-        print("Test 2")
+        #with self.assertRaises(TypeError):
+        #    Statistics.mean(["a","b"])
 
 if __name__ == '__main__':
     unittest.main()
