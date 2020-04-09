@@ -69,6 +69,16 @@ class TestStatistics(TestCase):
         expected = Statistics.correlation_coefficient(7.5, 7.5, 7.5)
         self.assertEqual(expected, actual)
 
+    def test_describe(self):
+        data = [1,2,3,4,5,6,7,8,9]
+        stats = Statistics.describe(data)
+        self.assertEqual(stats["count"], 9)
+        self.assertEqual(stats["mean"], 5.0)
+        self.assertEqual(stats["variance"], 7.5)
+        self.assertEqual(stats["std"], 2.7386127875258306)
+        self.assertEqual(stats["min"], 1)
+        self.assertEqual(stats["max"], 9)
+
 
 if __name__ == '__main__':
     unittest.main()

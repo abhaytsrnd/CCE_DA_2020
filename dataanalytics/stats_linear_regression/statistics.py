@@ -64,3 +64,17 @@ class Statistics:
         logging.debug("log: Calculate Correlation Coefficient Invoked.")
         r = cov / math.sqrt(variance_x * variance_y)
         return r
+
+    @staticmethod
+    def describe(data: [float]) -> {}:
+        logging.debug("log: Describe Invoked.")
+        mean = Statistics.mean(data)
+        (variance, std) = Statistics.variance(data, mean)
+        stats = {}
+        stats["count"] = len(data)
+        stats["mean"] = mean
+        stats["variance"] = variance
+        stats["std"] = std
+        stats["min"] = min(data)
+        stats["max"] = max(data)
+        return stats
