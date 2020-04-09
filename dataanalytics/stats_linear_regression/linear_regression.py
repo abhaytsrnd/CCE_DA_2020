@@ -12,47 +12,50 @@ class LinearRegression:
 
     def __init__(self):
         logging.debug('Initialized Linear Regression!!')
-        self._variables: int = 0
-        self._params: [float] = None
-        self._stats = []
+        self.__variables__: int = 0
+        self.__params__: [float] = None
+        self.__stats__ = [{}]
 
     def stats(self) -> []:
-        return self._stats
+        return self.__stats__
 
-    def fit(self, data:[[float]], y:[float]) -> ():
+    def params(self) -> []:
+        return self.__params__
+
+    def fit(self, data:[[float]], y:[float]) -> ([{}], [float], [float]):
         logging.info("log: Linear Regression Model Fit Invoked.")
-        self._stats = self.__stats(data, y)
-        self._variables = len(data)
+        self.__stats__ = self.__stats(data, y)
+        self.__variables__ = len(data)
 
         m1, m2 = self.__regression_matrix(data, y)
         m1_inverse = Matrix.inverse(m1)
 
         params = Matrix.multiply(m1_inverse, [m2])
         params = params[0]
-        self._params = params
+        self.__params__ = params
 
         ycap = self.predicts(data)
-        return (self._stats, self._params, ycap)
+        return (self.__stats__, self.__params__, ycap)
 
     def predicts(self, data:[[float]]) -> [float]:
-        if(self._variables != len(data)):
+        if(self.__variables__ != len(data)):
             raise ValueError('Number of Independent Variables Should be equal to ' + str(self._variables) + '!!')
         ycap = [0.0 for i in range(len(data[0]))]
         for i in range(len(data[0])):
-            point = [0.0 for i in range(self._variables)]
-            for j in range(self._variables):
+            point = [0.0 for i in range(self.__variables__)]
+            for j in range(self.__variables__):
                 point[j] = data[j][i]
             yhat = self.predict(point)
             ycap[i] = yhat
         return ycap
 
     def predict(self, point:[float]) -> float:
-        if(self._variables != len(point)):
+        if(self.__variables__ != len(point)):
             raise ValueError('Number of Independent Variables Should be equal to ' + str(self._variables) + '!!')
         ycap = 0.0
-        for i in range(self._variables):
-            ycap = ycap + self._params[i]*point[i]
-        ycap = ycap + self._params[self._variables]
+        for i in range(self.__variables__):
+            ycap = ycap + self.__params__[i]*point[i]
+        ycap = ycap + self.__params__[self.__variables__]
         return ycap
 
     #########################

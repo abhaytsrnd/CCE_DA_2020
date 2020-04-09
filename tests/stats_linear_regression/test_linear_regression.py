@@ -34,6 +34,7 @@ class TestLinearRegression(TestCase):
         self.assertEqual(params, actual_params)
         self.assertEqual(ycap, actual_ycap)
         self.assertEqual(model.stats(), actual_stats)
+        self.assertEqual(model.params(), actual_params)
         self.assertEqual(model.predicts(data), actual_ycap)
         self.assertEqual(model.predict([1]), -48.045818181817964)
 

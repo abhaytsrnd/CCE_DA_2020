@@ -1,0 +1,32 @@
+APIS:
+
+LinearRegression
+
+fit()
+Fit the multiple linear regression model.
+Parameters
+----------
+data : [[float]]
+  The Independent variables.
+
+y : [float]
+  The Dependent variable.
+
+Returns
+-------
+summary: [{}]
+  The statistical summary of the data.
+  Count, Mean, Variance, Standard Deviation, Min, Max and
+  Covariance and Correlation Coefficient with respect to dependent variable.
+
+parameters: [float]
+  The estimated parameters of the model.
+  [b1, b2, b3, ..., bm, b0]
+
+ycap: [float]
+  The predicated value using the estimated parameters.
+
+Raises
+------
+ValueError
+  If.
