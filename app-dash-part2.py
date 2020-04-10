@@ -11,10 +11,31 @@ import dash_table
 
 import pandas as pd
 
+from dataanalytics.stats_linear_regression.linear_regression import LinearRegression
+
 df = pd.read_csv('cleaned_df.csv')
 df = df[df.columns[1:]]
 
+def df_to_array(df: pd.core.frame.DataFrame, x_col:[str], y_col: str) -> ([[]], []):
+    data = [[] for i in range(len(x_col))]
+    for i in range(len(x_col)):
+        x = df[x_col[i]].values.tolist()
+        data[i] = x
+    y = df[y_col].values.tolist()
+    return (data, y)
+
 def generate_table(dataframe, max_rows=5):
+    ## Sample code to Integrage Linear Regression API ##
+    data, y = df_to_array(df, ["X2 house age","X3 distance to the nearest MRT station","X4 number of convenience stores"], "Y house price of unit area")
+    #print(data)
+    #print(y)
+
+    model = LinearRegression()
+    (summary, params, ycap) = model.fit(data, y)
+    print(summary)
+    print(params)
+    print(ycap)
+
     return html.Table([
         html.Thead(
             html.Tr([html.Th(col) for col in dataframe.columns])
@@ -30,19 +51,19 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(children=[
-    
+
     html.H2(children='Welcome to Data Analytics Tool',
     style={'textAlign': 'center'}),
     html.Div(children='''A tool developed as part of IISc CCE Data Analytics Course, 2020''',
             style={'textAlign': 'center'}),
     html.Hr(),
-    
+
     html.Div(children=[
     html.H3(children='Cleaned Data'),
     generate_table(df) ],
     style={'width': '78%', 'display': 'inline-block'}),
     html.Hr(),
-    
+
     html.Div([
         html.Label('Select X variable from Dropdown'),
         dcc.Dropdown(
@@ -51,7 +72,7 @@ app.layout = html.Div(children=[
             value=['x_var_list'],
             multi=True
         ),
-        
+
         html.Label('Select Y variable from Dropdown'),
         dcc.Dropdown(
             id = 'y-var-selection',
@@ -60,9 +81,9 @@ app.layout = html.Div(children=[
         )
     ],
     style={'width': '48%', 'display': 'inline-block'}),
-    
+
     html.Div(id='ordered-df', style={'display': 'none'}),
-   
+
     html.Label('Select X-axis variable for scatter plot'),
     dcc.Dropdown(
         id = 'x-var-plot',
@@ -71,7 +92,7 @@ app.layout = html.Div(children=[
         multi=False,
         style={'width': '48%', 'display': 'inline-block'}
     ),
-    
+
     html.Label('Select Y-axis variable for scatter plot'),
     dcc.Dropdown(
         id = 'y-var-plot',
@@ -80,7 +101,7 @@ app.layout = html.Div(children=[
         multi=False,
         style={'width': '48%', 'display': 'inline-block'}
     ),
-        
+
     dcc.Graph(id='scatter-plot'),
 ])
 
@@ -95,12 +116,12 @@ def ordering_data(x_var_value, y_var_value):
     ordered_df = pd.concat([dfx,dfy],axis=1)
     print(ordered_df)
     return ordered_df.to_json(date_format='iso', orient='split')
-    
+
 @app.callback(Output('scatter-plot', 'figure'),
             [Input('x-var-plot', 'value'),
              Input('y-var-plot', 'value') ])
 def scatter_plot(x_var_value, y_var_value):
-    return { 
+    return {
         'data': [dict(
             x=df[x_var_value],
             y=df[y_var_value],
@@ -124,8 +145,6 @@ def scatter_plot(x_var_value, y_var_value):
             hovermode='closest'
         )
     }
-     
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-

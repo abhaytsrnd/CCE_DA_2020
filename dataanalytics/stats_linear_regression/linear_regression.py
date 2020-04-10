@@ -1,7 +1,10 @@
 """Linear Regression
 APIs
-1. Regression
-2.
+1. fit
+2. stats
+3. params
+4. predicts
+5. predict
 """
 import logging
 
@@ -15,12 +18,6 @@ class LinearRegression:
         self.__variables__: int = 0
         self.__params__: [float] = None
         self.__stats__ = [{}]
-
-    def stats(self) -> []:
-        return self.__stats__
-
-    def params(self) -> []:
-        return self.__params__
 
     def fit(self, data:[[float]], y:[float]) -> ([{}], [float], [float]):
         logging.info("log: Linear Regression Model Fit Invoked.")
@@ -36,6 +33,12 @@ class LinearRegression:
 
         ycap = self.predicts(data)
         return (self.__stats__, self.__params__, ycap)
+
+    def stats(self) -> []:
+        return self.__stats__
+
+    def params(self) -> []:
+        return self.__params__
 
     def predicts(self, data:[[float]]) -> [float]:
         if(self.__variables__ != len(data)):
@@ -100,7 +103,7 @@ class LinearRegression:
         y_stats = Statistics.describe(y)
         (y_variance, y_std) = Statistics.variance(y, y_stats["mean"])
         y_stats["covariance"] = y_variance
-        y_stats["r"] = 1
+        y_stats["r"] = 1.0
         for i in range(len(data)):
             s = Statistics.describe(data[i])
             (covariance, r) = Statistics.covariance(data[i], y, s["mean"], y_stats["mean"])

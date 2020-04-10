@@ -1,7 +1,7 @@
 """Matrix
 APIs
-1. Inverse
-2. Multiply
+1. inverse
+2. multiply
 3.
 """
 import logging

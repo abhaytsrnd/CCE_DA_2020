@@ -1,9 +1,10 @@
 """Statistics
 APIs
-1. Mean
-2. Variance
-3. CoVariance
-4.
+1. mean
+2. variance
+3. coVariance
+4. correlation_coefficient
+5. describe
 """
 import logging
 import math
