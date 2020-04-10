@@ -1,4 +1,4 @@
-Clone or download 'master' to your local system
+Clone or download 'master' and 'dataanalytics' (from linear regression folder) to your local system
 
 step1: install pandas and dash using command -> pip install requirements.txt
 
