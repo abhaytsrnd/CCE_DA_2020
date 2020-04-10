@@ -11,6 +11,8 @@ import dash_table
 
 import pandas as pd
 
+from dataanalytics.data_cleaning.team2_data_cleaning import *
+
 
 def parse_data(contents, filename):
     content_type, content_string = contents.split(',')
@@ -35,21 +37,10 @@ def parse_data(contents, filename):
         ])
 
     return df
-
-def cleaned_data(df):
-    x_col_num = [1,2,3,4,5,6]
-    y_col_num = 7
-    col_num = x_col_num.copy()
-    col_num.append(y_col_num)
-    print(col_num)
-    cleaned_df = df[df.columns[col_num]]
-    print(cleaned_df.head())
-    return cleaned_df
-
+    
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-cleaned_df_global = pd.DataFrame()
 app.layout = html.Div(children=[
     
     html.H2(children='Welcome to Data Analytics Tool',
@@ -115,8 +106,9 @@ def saving_cleaned_data(contents, filename):
         contents = contents[0]
         filename = filename[0]
         df = parse_data(contents, filename)
-        cleaned_df = cleaned_data(df)
-        cleaned_df.to_csv('cleaned_df.csv')
+        cleaned_df = data_cleaning(df)
+        cleaned_df.to_csv('.\data\cleaned_df.csv')
+        df.to_csv('.\data\original_data.csv')
     return cleaned_df.to_json(date_format='iso', orient='split')
 
 if __name__ == '__main__':
