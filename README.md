@@ -1,3 +1,5 @@
+Clone or download 'master' to your local system
+
 step1: install pandas and dash using command -> pip install requirements.txt
 
 step2: open python/anaconda shell and cd to required directory. Both the py files should be in this directory. 
