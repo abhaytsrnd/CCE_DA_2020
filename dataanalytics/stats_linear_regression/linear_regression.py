@@ -21,6 +21,7 @@ class LinearRegression:
 
     def fit(self, data:[[float]], y:[float]) -> ([{}], [float], [float]):
         logging.info("log: Linear Regression Model Fit Invoked.")
+        self.__validate(data, y)
         self.__stats__ = self.__stats(data, y)
         self.__variables__ = len(data)
 
@@ -42,7 +43,7 @@ class LinearRegression:
 
     def predicts(self, data:[[float]]) -> [float]:
         if(self.__variables__ != len(data)):
-            raise ValueError('Number of Independent Variables Should be equal to ' + str(self._variables) + '!!')
+            raise ValueError('Number of Independent Variables Should be equal to ' + str(self.__variables__) + '!!')
         ycap = [0.0 for i in range(len(data[0]))]
         for i in range(len(data[0])):
             point = [0.0 for i in range(self.__variables__)]
@@ -54,7 +55,7 @@ class LinearRegression:
 
     def predict(self, point:[float]) -> float:
         if(self.__variables__ != len(point)):
-            raise ValueError('Number of Independent Variables Should be equal to ' + str(self._variables) + '!!')
+            raise ValueError('Number of Independent Variables Should be equal to ' + str(self.__variables__) + '!!')
         ycap = 0.0
         for i in range(self.__variables__):
             ycap = ycap + self.__params__[i]*point[i]
@@ -112,3 +113,13 @@ class LinearRegression:
             stats[i] = s
         stats[len(data)] = y_stats
         return stats
+
+    def __validate(self, data:[[float]], y:[float]):
+        if data is None or len(data) == 0:
+            raise ValueError("Data could not be None or Empty!!")
+        elif y is None or len(y) == 0:
+            raise ValueError("Y could not be None or Empty!!")
+        n = len(y)
+        for d in data:
+            if len(d) != n:
+                raise ValueError("No of Data Points should be eqaul to " + str(n) + " !!")
