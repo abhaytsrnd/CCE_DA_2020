@@ -79,6 +79,29 @@ class TestStatistics(TestCase):
         self.assertEqual(stats["min"], 1)
         self.assertEqual(stats["max"], 9)
 
+    ########################
+    ### Validation Tests ###
+    ########################
+
+    def test_none_data(self):
+        with self.assertRaises(ValueError):
+            Statistics.mean(None)
+        with self.assertRaises(ValueError):
+            Statistics.mean([])
+        with self.assertRaises(ValueError):
+            Statistics.variance(None)
+        with self.assertRaises(ValueError):
+            Statistics.variance([])
+        with self.assertRaises(ValueError):
+            Statistics.covariance(None, [1])
+        with self.assertRaises(ValueError):
+            Statistics.covariance([], [1])
+        with self.assertRaises(ValueError):
+            Statistics.covariance([1], None)
+        with self.assertRaises(ValueError):
+            Statistics.covariance([1], [])
+        with self.assertRaises(ValueError):
+            Statistics.covariance([1], [1,2])
 
 if __name__ == '__main__':
     unittest.main()

@@ -26,9 +26,12 @@ class LinearRegression:
         self.__variables__ = len(data)
 
         m1, m2 = self.__regression_matrix(data, y)
-        m1_inverse = Matrix.inverse(m1)
+        m1i = Matrix.inverse(m1)
+        m1it = Matrix.transpose(m1i)
+        m2t = Matrix.transpose([m2])
 
-        params = Matrix.multiply(m1_inverse, [m2])
+        params = Matrix.multiply(m1it, m2t)
+        params = Matrix.transpose(params)
         params = params[0]
         self.__params__ = params
 
@@ -119,7 +122,6 @@ class LinearRegression:
             raise ValueError("Data could not be None or Empty!!")
         elif y is None or len(y) == 0:
             raise ValueError("Y could not be None or Empty!!")
-        n = len(y)
-        for d in data:
-            if len(d) != n:
-                raise ValueError("No of Data Points should be eqaul to " + str(n) + " !!")
+        Matrix.validate(data)
+        if len(data[0]) != len(y):
+            raise ValueError("No of Data Points should be eqaul to " + str(len(y)) + " !!")

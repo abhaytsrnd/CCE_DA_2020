@@ -17,6 +17,7 @@ class Statistics:
     @staticmethod
     def mean(data: [float]) -> float:
         logging.debug("log: Calculate Mean Invoked.")
+        Statistics.__validate(data)
         sum = 0.0
         for v in data:
             sum = sum + v
@@ -26,6 +27,7 @@ class Statistics:
     @staticmethod
     def variance(data: [float], mean: float = None) -> (float, float):
         logging.debug("log: Calculate Variance Invoked.")
+        Statistics.__validate(data)
         if mean is None:
             mean = Statistics.mean(data)
         sum = 0.0
@@ -38,6 +40,8 @@ class Statistics:
     @staticmethod
     def covariance(data_x: [float], data_y: [float], mean_x: float = None, mean_y: float = None) -> (float, float):
         logging.debug("log: Calculate CoVariance Invoked.")
+        Statistics.__validate(data_x)
+        Statistics.__validate(data_y)
         n_x = len(data_x)
         n_y = len(data_y)
         if(n_x != n_y):
@@ -69,6 +73,7 @@ class Statistics:
     @staticmethod
     def describe(data: [float]) -> {}:
         logging.debug("log: Describe Invoked.")
+        Statistics.__validate(data)
         mean = Statistics.mean(data)
         (variance, std) = Statistics.variance(data, mean)
         stats = {}
@@ -79,3 +84,8 @@ class Statistics:
         stats["min"] = min(data)
         stats["max"] = max(data)
         return stats
+
+    @staticmethod
+    def __validate(data:[float]):
+        if data is None or len(data) == 0:
+            raise ValueError("Data could not be None or Empty!!")
