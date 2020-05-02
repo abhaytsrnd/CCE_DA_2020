@@ -22,6 +22,20 @@ class TestMatrix(TestCase):
     def tearDown(self):
         logging.info("TearDown TestMatrix!!")
 
+    def test_addition_2corss2_m1_m2(self):
+        m1 = [[1,2],[3,4]]
+        m2 = [[5,6],[0,-2]]
+        actual = [[6,8],[3,2]]
+        expected = Matrix.add(m1,m2)
+        self.assertEqual(expected, actual)
+
+    def test_scalar_multiply_square_2corss2_m1_m2(self):
+        m1 = [[1,2],[3,4]]
+        s = 5
+        actual = [[5,10],[15,20]]
+        expected = Matrix.scalar_multiply(m1,s)
+        self.assertEqual(expected, actual)
+
     def test_multiply_square_2corss2_m1_m2(self):
         m1 = [[1,2],[3,4]]
         m2 = [[5,6],[0,-2]]
@@ -87,6 +101,12 @@ class TestMatrix(TestCase):
         m1 = [[1,2,3],[4,5,6], [7,8,9]]
         actual = [[1,4,7], [2,5,8], [3,6,9]]
         expected = Matrix.transpose(m1)
+        self.assertEqual(expected, actual)
+
+    def test_identity(self):
+        m = 3
+        actual = [[1,0,0], [0,1,0], [0,0,1]]
+        expected = Matrix.identity(m)
         self.assertEqual(expected, actual)
 
     ########################
