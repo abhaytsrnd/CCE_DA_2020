@@ -16,14 +16,27 @@ class LinearRegression:
     def __init__(self):
         logging.debug('Initialized Linear Regression!!')
         self.__variables__: int = 0
-        self.__params__: [float] = None
+        self.__corr_mat__ = [[float]]
+        self.__partial_mat__ = [[float]]
         self.__stats__ = [{}]
+        self.__params__: [float] = None
+
 
     def fit(self, data:[[float]], y:[float]) -> ([{}], [float], [float]):
         logging.info("log: Linear Regression Model Fit Invoked.")
         self.__validate(data, y)
-        self.__stats__ = self.__stats(data, y)
         self.__variables__ = len(data)
+
+        merge_data = [[None for x in range(len(y))] for x in range(len(data)+1)]
+        for i in range(len(merge_data)):
+            if i == 0:
+                merge_data[i] = y
+            else:
+                merge_data[i] = data[i-1]
+
+        self.__corr_mat__ = Statistics.correlation_matrix(merge_data)
+        self.__partial_mat__ = Statistics.partial_correlation_matrix(merge_data)
+        self.__stats__ = self.__stats(data, y)
 
         m1, m2 = self.__regression_matrix(data, y)
         m1i = Matrix.inverse(m1)
@@ -38,11 +51,17 @@ class LinearRegression:
         ycap = self.predicts(data)
         return (self.__stats__, self.__params__, ycap)
 
-    def stats(self) -> []:
+    def stats(self) -> [{}]:
         return self.__stats__
 
-    def params(self) -> []:
+    def params(self) -> [float]:
         return self.__params__
+
+    def correlation_matrix(self) -> [[float]]:
+        return self.__corr_mat__
+
+    def partial_correlation_matrix(self) -> [[float]]:
+        return self.__partial_mat__
 
     def predicts(self, data:[[float]]) -> [float]:
         if(self.__variables__ != len(data)):
@@ -108,13 +127,17 @@ class LinearRegression:
         (y_variance, y_std) = Statistics.variance(y, y_stats["mean"])
         y_stats["covariance"] = y_variance
         y_stats["r"] = 1.0
+        y_stats["key"] = "y"
+        y_stats["pr"] = 1.0
+        stats[0] = y_stats
         for i in range(len(data)):
             s = Statistics.describe(data[i])
             (covariance, r) = Statistics.covariance(data[i], y, s["mean"], y_stats["mean"])
             s["covariance"] = covariance
             s["r"] = r
-            stats[i] = s
-        stats[len(data)] = y_stats
+            s["key"] = "x"+str(i+1)
+            s["pr"] = self.__partial_mat__[0][i+1]
+            stats[i+1] = s
         return stats
 
     def __validate(self, data:[[float]], y:[float]):
