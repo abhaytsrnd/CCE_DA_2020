@@ -8,6 +8,7 @@ APIs
 """
 import logging
 import math
+from dataanalytics.stats_linear_regression.matrix import Matrix
 
 class Statistics:
 
@@ -89,3 +90,73 @@ class Statistics:
     def __validate(data:[float]):
         if data is None or len(data) == 0:
             raise ValueError("Data could not be None or Empty!!")
+
+    #############################
+    #### Partial Correlation ####
+    #############################
+
+    #Yule - Walker Equations
+    def yule_walker_eq(r12: float, r13: float, r23: float) -> float:
+        if r12 is None or r13 is None or r23 is None:
+            raise ValueError("Data could not be None or Empty!!")
+        if r12 > 1 or r12 < -1 or r13 > 1 or r13 < -1 or r23 > 1 or r23 < -1:
+            raise ValueError("Correlation Coefficient could not less than -1 and greater than 1!!" + "r12: " + str(r12) + " r13: " + str(r13) + " r23: " + str(r23))
+        r12_3 = 0.0
+        num = (r12 - (r13*r23))
+        den = math.sqrt((1-(r13*r13)) * (1-(r23*r23)))
+        r12_3 = num/den
+        return r12_3
+
+    @staticmethod
+    def partial_correlation(data_y: [float], data_x:[float], eliminate:[[float]]) -> float:
+        Statistics.__validate(data_y)
+        Statistics.__validate(data_x)
+        if len(data_y) != len(data_x):
+            raise ValueError("Data Y & X should be of same dimension!!" + str(len(data_y)) + " != " + str(len(data_x)))
+        Matrix.validate(eliminate)
+        n = len(data_y)
+        if n != len(eliminate[0]):
+            raise ValueError("Data Y, X & Eliminate should be of same dimension!!" + str(n) + " != " + str(len(eliminate[0])))
+
+        m = len(eliminate) + 2
+        data = [[0.0 for x in range(n)] for x in range(m)]
+        for i in range(m):
+            if i == 0:
+                data[i] = data_y
+            elif i == 1:
+                data[i] = data_x
+            else:
+                data[i] = eliminate[i-2]
+        mat = Statistics.partial_correlation_matrix(data)
+        return mat[0][1]
+
+    @staticmethod
+    def correlation_matrix(data: [[float]]) -> [[float]]:
+        Matrix.validate(data)
+        m = len(data)
+
+        corr_m = [[None for x in range(m)] for x in range(m)]
+
+        for j in range(m):
+            for k in range(m):
+                if corr_m[j][k] is None:
+                    cov, r = Statistics.covariance(data[j], data[k])
+                    corr_m[j][k] = r
+                    corr_m[k][j] = r
+        return corr_m
+
+    @staticmethod
+    def partial_correlation_matrix(data: [[float]]) -> [[float]]:
+        m = len(data)
+        corr_m = Statistics.correlation_matrix(data)
+        corr_mi = Matrix.inverse(corr_m)
+
+        par_corr_m = [[None for x in range(m)] for x in range(m)]
+
+        for j in range(m):
+            for k in range(m):
+                den =  -1 * math.sqrt(corr_mi[j][j] * corr_mi[k][k])
+                r = corr_mi[j][k] / den
+                par_corr_m[j][k] = r
+
+        return par_corr_m

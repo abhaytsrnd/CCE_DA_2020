@@ -87,8 +87,8 @@ class Matrix:
         c = len(m)
         r = len(m[0])
         mat = [[0.0 for x in range(c)] for x in range(r)]
-        for j in range (r):
-            for k in range (c):
+        for j in range(r):
+            for k in range(c):
                 mat[j][k] = m[k][j]
         return mat
 
@@ -97,8 +97,8 @@ class Matrix:
         logging.debug("log: Matrix Identity Invoked.")
         mat = [[0.0 for x in range(n)] for x in range(n)]
 
-        for j in range (n):
-            for k in range (n):
+        for j in range(n):
+            for k in range(n):
                 if j == k:
                     mat[j][k] = 1
         return mat
