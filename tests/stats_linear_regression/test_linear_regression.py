@@ -45,6 +45,11 @@ class TestLinearRegression(TestCase):
         self.assertEqual(model.predicts(data), actual_ycap)
         self.assertEqual(model.predict([1]), -48.045818181817964)
 
+        actual_corr = [[1.0, 0.9617576489183196], [0.9617576489183196, 1.0]]
+        actual_partial_corr = [[1.0, 0.9617576489183195], [0.9617576489183195, 1.0]]
+        self.assertEqual(model.correlation_matrix(), actual_corr)
+        self.assertEqual(model.partial_correlation_matrix(), actual_partial_corr)
+
     def test_linear_model_bivariate_fit(self):
         data = [[14.0, 10.0, 14.0, 16.0, 10.0, 10.0, 14.0, 16.0], [4.0, 2.0, 1.0, 1.0, 4.0, 3.0, 3.0, 4.0]]
         y = [82.0, 48.0, 60.0, 85.0, 72.0, 62.0, 90.0, 101.0]
@@ -71,6 +76,11 @@ class TestLinearRegression(TestCase):
         predict = round(predict, 5)
         self.assertEqual(predict, 104.06716)
 
+        actual_corr = [[1.0, 0.7539487656439327, 0.42295923256718326], [0.7539487656439327, 1.0, -0.17025130615174972], [0.42295923256718326, -0.17025130615174972, 1.0]]
+        actual_partial_corr = [[1.0, 0.9250084450019057, 0.8516666901452074], [0.9250084450019057, 1.0, -0.8216999738583994], [0.8516666901452074, -0.8216999738583994, 1.0]]
+        self.assertEqual(model.correlation_matrix(), actual_corr)
+        self.assertEqual(model.partial_correlation_matrix(), actual_partial_corr)
+
     def test_linear_model_trivariate_fit(self):
         data = [[14.0, 10.0, 14.0, 16.0, 10.0, 10.0, 14.0, 16.0], [4.0, 2.0, 1.0, 1.0, 4.0, 3.0, 3.0, 4.0], [40.0, 40.0, 50.0, 50.0, 50.0, 40.0, 50.0, 60.0]]
         y = [82.0, 48.0, 60.0, 85.0, 72.0, 62.0, 90.0, 101.0]
@@ -96,6 +106,11 @@ class TestLinearRegression(TestCase):
         predict = model.predict([15,5,35])
         predict = round(predict, 5)
         self.assertEqual(predict, 95.79927)
+
+        actual_corr = [[1.0, 0.7539487656439327, 0.42295923256718326, 0.675134989581633], [0.7539487656439327, 1.0, -0.17025130615174972, 0.6172133998483676], [0.42295923256718326, -0.17025130615174972, 1.0, 0.07881104062391008], [0.675134989581633, 0.6172133998483676, 0.07881104062391008, 1.0]]
+        actual_partial_corr = [[1.0, 0.8690424878183447, 0.8508196834899874, 0.4004406241270938], [0.8690424878183448, 1.0, -0.8119486273269884, -0.05696928063170212], [0.8508196834899874, -0.8119486273269885, 1.0, -0.2265003655587716], [0.40044062412709386, -0.05696928063170224, -0.22650036555877173, 1.0]]
+        self.assertEqual(model.correlation_matrix(), actual_corr)
+        self.assertEqual(model.partial_correlation_matrix(), actual_partial_corr)
 
     ########################
     ### Validation Tests ###

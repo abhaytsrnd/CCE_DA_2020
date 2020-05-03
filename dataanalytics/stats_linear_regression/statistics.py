@@ -155,8 +155,11 @@ class Statistics:
 
         for j in range(m):
             for k in range(m):
-                den =  -1 * math.sqrt(corr_mi[j][j] * corr_mi[k][k])
-                r = corr_mi[j][k] / den
-                par_corr_m[j][k] = r
+                if j == k:
+                    par_corr_m[j][k] = 1.0
+                else:
+                    den =  -1 * math.sqrt(corr_mi[j][j] * corr_mi[k][k])
+                    r = corr_mi[j][k] / den
+                    par_corr_m[j][k] = r
 
         return par_corr_m
