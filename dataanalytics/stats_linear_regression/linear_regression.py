@@ -19,6 +19,7 @@ class LinearRegression:
         self.__corr_mat__ = [[float]]
         self.__partial_mat__ = [[float]]
         self.__stats__ = [{}]
+        self.__model_stats__ = {}
         self.__params__: [float] = None
 
 
@@ -49,10 +50,14 @@ class LinearRegression:
         self.__params__ = params
 
         ycap = self.predicts(data)
+        self.__model_stats__ = self.__model_stats(y, ycap)
         return (self.__stats__, self.__params__, ycap)
 
     def stats(self) -> [{}]:
         return self.__stats__
+
+    def model_stats(self) -> {}:
+        return self.__model_stats__
 
     def params(self) -> [float]:
         return self.__params__
@@ -139,6 +144,13 @@ class LinearRegression:
             s["pr"] = self.__partial_mat__[0][i+1]
             stats[i+1] = s
         return stats
+
+    def __model_stats(self, y:[float], ycap:[float]) -> {}:
+        error = [0.0 for x in range(len(y))]
+        for i in range(len(y)):
+            error[i] = y[i] - ycap[i]
+        s = Statistics.describe(error)
+        return s
 
     def __validate(self, data:[[float]], y:[float]):
         if data is None or len(data) == 0:
