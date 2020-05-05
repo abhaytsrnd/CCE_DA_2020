@@ -1,8 +1,12 @@
 """Matrix
 APIs
 1. inverse
-2. multiply
-3. validate
+2. add
+3. scalar_multiply
+4. multiply
+5. transpose
+6. identity
+7. validate
 """
 import logging
 import math
@@ -19,6 +23,9 @@ class Matrix:
     def inverse(m: [[float]]) -> [[float]]:
         logging.debug("log: Matrix Inverse Invoked.")
         Matrix.validate(m)
+        if len(m) != len(m[0]):
+            raise ValueError("Matrix Inverse does not exist!! " + str(m) + "*"+ str(m[0]))
+
         npm = np.array(m)
         npm_inverse = np.linalg.inv(npm)
         m_inverse = np.asarray(npm_inverse)

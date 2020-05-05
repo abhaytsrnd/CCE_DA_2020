@@ -5,6 +5,10 @@ APIs
 3. coVariance
 4. correlation_coefficient
 5. describe
+6. yule_walker_eq
+7. partial_correlation
+8. correlation_matrix
+9. partial_correlation_matrix
 """
 import logging
 import math

@@ -2,9 +2,12 @@
 APIs
 1. fit
 2. stats
-3. params
-4. predicts
-5. predict
+3. model_stats
+4. params
+5. correlation_matrix
+6. partial_correlation_matrix
+7. predict
+8. predicts
 """
 import logging
 

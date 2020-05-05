@@ -130,6 +130,9 @@ class TestMatrix(TestCase):
         with self.assertRaises(ValueError):
             Matrix.validate([[1,2], [1,2,3]])
 
+    def test_matrix_inverse_validation(self):
+        with self.assertRaises(ValueError):
+            Matrix.inverse([[1,2],[3,4],[5,6]])
 
 if __name__ == '__main__':
     unittest.main()
