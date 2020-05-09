@@ -44,6 +44,7 @@ class TestLinearRegression(TestCase):
         self.assertEqual(model.params(), actual_params)
         self.assertEqual(model.predicts(data), actual_ycap)
         self.assertEqual(model.predict([1]), -48.045818181817964)
+        self.assertEqual(self.round(model.ycap(), 5), self.round(actual_ycap, 5))
 
         actual_corr = [[1.0, 0.9617576489183196], [0.9617576489183196, 1.0]]
         actual_partial_corr = [[1.0, 0.9617576489183195], [0.9617576489183195, 1.0]]
@@ -70,6 +71,7 @@ class TestLinearRegression(TestCase):
         self.assertEqual(stats, actual_stats)
         self.assertEqual(self.round(params, 5), actual_params)
         self.assertEqual(self.round(ycap, 5), actual_ycap)
+        self.assertEqual(self.round(model.ycap(), 5), self.round(actual_ycap, 5))
 
         predicts = model.predicts(data)
         predicts = self.round(predicts, 5)
@@ -104,6 +106,7 @@ class TestLinearRegression(TestCase):
         self.assertEqual(stats, actual_stats)
         self.assertEqual(self.round(params, 5), actual_params)
         self.assertEqual(self.round(ycap, 5), actual_ycap)
+        self.assertEqual(self.round(model.ycap(), 5), self.round(actual_ycap, 5))
 
         predicts = model.predicts(data)
         predicts = self.round(predicts, 5)
@@ -117,7 +120,7 @@ class TestLinearRegression(TestCase):
         actual_partial_corr = [[1.0, 0.8690424878183447, 0.8508196834899874, 0.4004406241270938], [0.8690424878183448, 1.0, -0.8119486273269884, -0.05696928063170212], [0.8508196834899874, -0.8119486273269885, 1.0, -0.2265003655587716], [0.40044062412709386, -0.05696928063170224, -0.22650036555877173, 1.0]]
         self.assertEqual(model.correlation_matrix(), actual_corr)
         self.assertEqual(model.partial_correlation_matrix(), actual_partial_corr)
-        
+
         model_stats = model.model_stats()
         self.assertEqual(round(model_stats['mean'], 4), 0)
 

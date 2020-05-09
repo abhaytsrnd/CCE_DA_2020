@@ -24,7 +24,7 @@ class LinearRegression:
         self.__stats__ = [{}]
         self.__model_stats__ = {}
         self.__params__: [float] = None
-
+        self.__ycap__: [float] = None
 
     def fit(self, data:[[float]], y:[float]) -> ([{}], [float], [float]):
         logging.info("log: Linear Regression Model Fit Invoked.")
@@ -52,9 +52,9 @@ class LinearRegression:
         params = params[0]
         self.__params__ = params
 
-        ycap = self.predicts(data)
-        self.__model_stats__ = self.__model_stats(y, ycap)
-        return (self.__stats__, self.__params__, ycap)
+        self.__ycap__ = self.predicts(data)
+        self.__model_stats__ = self.__model_stats(y, self.__ycap__)
+        return (self.__stats__, self.__params__, self.__ycap__)
 
     def stats(self) -> [{}]:
         return self.__stats__
@@ -64,6 +64,9 @@ class LinearRegression:
 
     def params(self) -> [float]:
         return self.__params__
+
+    def ycap(self) -> [float]:
+        return self.__ycap__
 
     def correlation_matrix(self) -> [[float]]:
         return self.__corr_mat__
