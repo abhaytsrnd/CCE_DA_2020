@@ -50,10 +50,12 @@ layout = html.Div([
                 value=None,
                 multi=False
             ),
-            html.Br()
+            html.Br(),
         ],
         style = {'margin': '10px', 'width': '50%'}),
+
         html.Div([], id = "display-file"),
+
         html.Div([], id = "file-properties"),
         html.Div([], id = "file-separator-do-nothing"),
         html.Div([], id = "file-header-do-nothing"),
@@ -61,16 +63,18 @@ layout = html.Div([
         html.Div([], id = "reset-app-do-nothing")
 ])
 
-@app.callback(
-    Output("selected-file", "options"),
+@app.callback(Output("selected-file", "options"),
     [Input('upload-data', 'contents'),
     Input('upload-data', 'filename')]
 )
 def upload_data(contents, filename):
     """Upload Files and Regenerate the file list."""
+    global files
+    msg = None
     if contents:
         for i in range(len(filename)):
             FileUtils.upload(filename[i], contents[i])
+        msg = "File Uploaded Successfully: "+ str(filename)
     files = FileUtils.files('raw')
     if len(files) == 0:
         options=[{'label':'No files uploaded yet!', 'value':'None'}]
