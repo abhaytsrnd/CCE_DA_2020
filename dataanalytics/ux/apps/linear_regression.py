@@ -14,6 +14,7 @@ from dataanalytics.framework.database import db
 from dataanalytics.framework.file_utils import FileUtils
 from dataanalytics.framework.data_utils import DataUtils
 from dataanalytics.stats_linear_regression.linear_regression import LinearRegression
+from dataanalytics.stat_anova.anova import get_anova
 
 file = db.get('lr.file')
 if file is None:
@@ -151,12 +152,31 @@ def linear_regression(n):
 
     html.Div([
         dcc.Graph(id='lr-y-ycap-plot', figure=y_ycap_fig),
-        dcc.Graph(id='lr-error-plot', figure=error_fig)]),
+        dcc.Graph(id='lr-error-plot', figure=error_fig),
+        html.Div([], id = 'lr-error-mean')]),
     html.Div([
-        html.H2('ANOVA Table'),
         html.Hr(),
+        html.H2('ANOVA Table'),
         html.Div([], id='lr-anova-table'),
         ]),
+    html.Div([
+        html.Hr(),
+        dbc.Label('Predict Data (pass comma separated) Dependent Variables'),
+        dbc.Input(id="lr-predict-data", placeholder="Model Name", type="text"),
+        html.Br(),
+        dbc.Button("Predict", color="primary", id = 'lr-predict'),
+        html.Div([], id='lr-predict-display'),
+        html.Div([], id='lr-predict-data-do-nothing'),
+        ]),
+    html.Div([
+        html.Hr(),
+        dbc.Label('Save Model'),
+        dbc.Input(id="lr-save-model", placeholder="Model Name", type="text"),
+        html.Br(),
+        dbc.Button("Save", color="primary", id = 'lr-save'),
+        html.Div([], id='lr-save-display'),
+        html.Div([], id='lr-save-model-do-nothing'),
+        ])
     ]
     return div
 
@@ -209,6 +229,7 @@ def scatter_plot(x_var_value, y_var_value):
                 Output('coeff_table', 'children'),
                 Output('lr-y-ycap-plot','figure'),
                 Output('lr-error-plot','figure'),
+                Output('lr-error-mean', 'children'),
                 Output('lr-anova-table','children')],
             [Input('ordered-df', 'children')])
 def stats_table_and_linear_regression(json_ordered_data):
@@ -218,12 +239,16 @@ def stats_table_and_linear_regression(json_ordered_data):
         generate_table(pd.DataFrame(columns=[])),
         y_ycap_fig,
         error_fig,
+        "",
         "")
     dff = pd.read_json(json_ordered_data, orient='split')
     col = list(dff.columns)
     y = list(dff[col[-1]])
     data = []
     x_col = col[:-1]
+    y_col = col[-1]
+    print(x_col)
+    print(y_col)
     data = [[] for i in range(len(x_col))]
     for i in range(len(x_col)):
         x = dff[x_col[i]].values.tolist()
@@ -233,33 +258,28 @@ def stats_table_and_linear_regression(json_ordered_data):
     try:
         model = LinearRegression()
         db.put("lr.model", model)
+        db.put("lr.x_col", x_col)
+        db.put("lr.y_col", y_col)
         (summary, params, ycap) = model.fit(data, y)
         db.put("lr.summary", summary)
         db.put("lr.params", params)
         db.put("lr.ycap", ycap)
+        error_mean = model.model_stats()['mean']
+        db.put("lr.error_mean", error_mean)
     except (Exception, ValueError) as e:
         return (common.error_msg("Linear Regression API Error: " + str(e)),
         generate_table(pd.DataFrame(columns=[])),
         generate_table(pd.DataFrame(columns=[])),
         y_ycap_fig,
         error_fig,
+        "",
         "")
 
-    for dict_value in summary:
-        for k, v in dict_value.items():
-            dict_value[k] = round(v, 4)
-    df_stats = pd.DataFrame(summary)
-    df_stats['Var_Name'] = col
-    df_stats = df_stats[['Var_Name','count','min','max','mean','variance','std','covariance','r', 'pr']]
+    df_stats = common.get_stats_df(summary, x_col, y_col)
     table1 = dbc.Table.from_dataframe(df_stats, striped=True, bordered=True, hover=True, style = common.table_style)
 
-    x_col.append('Constant')
-    params = [ '%.4f' % elem for elem in params ]
-    df_coeff = pd.DataFrame(params, columns=['Coefficient'])
-    df_coeff['Var_Name'] = x_col
-    df_coeff = df_coeff[['Var_Name','Coefficient']]
+    df_coeff = common.get_coeff_df(params, x_col)
     table2 = dbc.Table.from_dataframe(df_coeff, striped=True, bordered=True, hover=True, style = common.table_style)
-
 
     trace_1 = go.Scatter(x = list(range(len(y))), y = ycap,
                     name = 'Y_Predicted',
@@ -277,12 +297,90 @@ def stats_table_and_linear_regression(json_ordered_data):
 
     fig1 = go.Figure(data = [trace_1, trace_2], layout = y_ycap_title)
     fig2 = go.Figure(data = [trace_3], layout = error_title)
-    anova_div = "TODO Anova"
+    error_mean = str(db.get('lr.error_mean'))
+    error_mean = html.P('Error Mean = ' + error_mean)
+
     ##Team 5 API Integration
+    anova_input = {'y':y,'y_exp':ycap, 'deg_fr':len(params)}
+    anova = get_anova(anova_input)
+    db.put('lr.anova', anova)
+    anova_div = common.get_anova_div(anova)
 
     return (common.success_msg("Linear Regression API Exceuted Successfully!!"),
     table1,
     table2,
     fig1,
     fig2,
+    error_mean,
     anova_div)
+
+@app.callback(
+    Output('lr-predict-data-do-nothing' , "children"),
+    [Input('lr-predict-data', 'value')]
+)
+def lr_predict_input(value):
+    if not value is None:
+        db.put("cl.predict_data", value)
+    return None
+
+@app.callback(
+    Output('lr-save-model-do-nothing' , "children"),
+    [Input('lr-save-model', 'value')]
+)
+def cl_model_name_input(value):
+    if not value is None:
+        db.put("cl.model_name", value)
+    return None
+
+@app.callback(
+    Output("lr-predict-display", "children"),
+    [Input('lr-predict', 'n_clicks')]
+)
+def lr_predict_data(n_clicks):
+    predict_data = db.get('cl.predict_data')
+    if predict_data is None:
+        return ""
+    predict_data = get_predict_data_list(predict_data)
+    model = db.get("lr.model")
+    params = db.get("lr.params")
+    if len(predict_data) != len(params) - 1:
+        return common.error_msg('Pass Valid InDependent Variables!!')
+    predicted = model.predict(predict_data)
+    return common.success_msg('Predicted Dependent Variable = ' + str(predicted))
+
+@app.callback(
+    Output("lr-save-display", "children"),
+    [Input('lr-save', 'n_clicks')]
+)
+def lr_save_model(n_clicks):
+    model_name = db.get('cl.model_name')
+    if model_name is None:
+        return ""
+    model = db.get("lr.model")
+    params = db.get("lr.params")
+    anova = db.get("lr.anova")
+    error_mean = db.get('lr.error_mean')
+    summary = db.get("lr.summary")
+    x_col = db.get("lr.x_col")
+    y_col = db.get("lr.y_col")
+    m = {
+        'model': model,
+        'params': params,
+        'anova': anova,
+        'summary': summary,
+        'x_col': x_col,
+        'y_col': y_col,
+        'error_mean': error_mean}
+    models = db.get('models')
+    if models is None:
+        models = {}
+        db.put('models', models)
+    models[model_name] = m
+    return common.success_msg('Model "'+ model_name +'" Saved Successfully.')
+
+def get_predict_data_list(predict_data: str) -> []:
+    predict_data = predict_data.split(',')
+    feature_vector = []
+    for d in predict_data:
+        feature_vector.append(float(d))
+    return feature_vector
