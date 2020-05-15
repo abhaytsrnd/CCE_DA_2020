@@ -3,7 +3,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 from dataanalytics.ux.app import app
-from dataanalytics.ux.apps import home, linear_regression
+from dataanalytics.ux.apps import home, linear_regression, higher_order_regression, regression_comparison
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -19,7 +19,9 @@ def display_page(pathname):
     elif pathname == '/apps/linear-regression':
         return linear_regression.layout
     elif pathname == '/apps/higher-order-regression':
-        return linear_regression.layout
+        return higher_order_regression.layout
+    elif pathname == '/apps/regression-comparison':
+        return regression_comparison.layout
     else:
         return '404'
 

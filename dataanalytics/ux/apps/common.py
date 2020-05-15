@@ -11,7 +11,8 @@ def navbar(page_name: str):
                 children=[
                     #dbc.DropdownMenuItem("Home", href="/home", id = "home-refresh", style = {'font-size': '16px'}),
                     dbc.DropdownMenuItem("Linear Regression", href="/apps/linear-regression", id = "linear-regression", style = {'font-size': '16px'}),
-                    dbc.DropdownMenuItem("Higher Order Regression", href="/apps/higher-order-regression", id = "higher-order-regression", style = {'font-size': '16px'})
+                    dbc.DropdownMenuItem("Higher Order Regression", href="/apps/higher-order-regression", id = "higher-order-regression", style = {'font-size': '16px'}),
+                    dbc.DropdownMenuItem("Regression Comparison", href="/apps/regression-comparison", id = "regression-comparison", style = {'font-size': '16px'})
                 ],
                 nav=True,
                 in_navbar=True,
