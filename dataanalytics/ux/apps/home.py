@@ -36,10 +36,10 @@ layout = html.Div([
             'margin': '10px'
         },
         multiple=True),
-        html.Br(),
+        html.Div([], id = "data-upload-msg"),
         html.Div([
-            dbc.Button("Clear", color="info", id = 'clear-home', className="mr-4"),
-            dbc.Button("Reset App", color="danger", id = 'reset-app', className="mr-4"),
+            dbc.Button("Load Uploaded Files", color="info", id = 'home-load-raw-files', className="mr-4"),
+            #dbc.Button("Reset App", color="danger", id = 'reset-app', className="mr-4"),
             html.Br()],
             style = {'margin': '10px', 'width': '50%'}),
         html.Div([
@@ -63,7 +63,7 @@ layout = html.Div([
         html.Div([], id = "reset-app-do-nothing")
 ])
 
-@app.callback(Output("selected-file", "options"),
+@app.callback(Output("data-upload-msg", "children"),
     [Input('upload-data', 'contents'),
     Input('upload-data', 'filename')]
 )
@@ -72,6 +72,14 @@ def upload_data(contents, filename):
     if contents:
         for i in range(len(filename)):
             FileUtils.upload(filename[i], contents[i])
+        return common.success_msg('File Uploaded Successfully: ' + str(filename))
+    return ""
+
+@app.callback(
+    Output("selected-file", "options"),
+    [Input('home-load-raw-files', 'n_clicks')]
+)
+def load_upload_raw_data(n_clicks):
     files = FileUtils.files('raw')
     if len(files) == 0:
         options=[{'label':'No files uploaded yet!', 'value':'None'}]

@@ -1,7 +1,7 @@
 from dataanalytics.framework.file_utils import FileUtils
 import pandas as pd
 
-N = 10
+N = 5
 
 class DataUtils:
 
