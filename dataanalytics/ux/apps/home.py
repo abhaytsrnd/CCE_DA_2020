@@ -81,12 +81,12 @@ def upload_data(contents, filename):
 )
 def load_upload_raw_data(n_clicks):
     files = FileUtils.files('raw')
+    print('Raw')
     if len(files) == 0:
         options=[{'label':'No files uploaded yet!', 'value':'None'}]
-        return options
     else:
         options=[{'label':file, 'value':file} for file in files]
-        return options
+    return options
 
 @app.callback(
     Output("display-file", "children"),

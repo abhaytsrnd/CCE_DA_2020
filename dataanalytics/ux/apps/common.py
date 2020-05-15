@@ -90,6 +90,7 @@ def get_stats_df(summary: {}, x_col: [], y_col: str):
     c = [y_col] + x_col
     df_stats['Var_Name'] = c
     df_stats = df_stats[['Var_Name','count','min','max','mean','variance','std','covariance','r', 'pr']]
+    del df_stats['pr']
     return df_stats
 
 def get_coeff_df(params: [], x_col: []):

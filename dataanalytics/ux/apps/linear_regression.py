@@ -54,17 +54,17 @@ layout = html.Div(children=[
 ])
 
 @app.callback(
-    Output("lr-select-files", "options"),
+    Output("lr-select-file", "options"),
     [Input('lr-load-clean-files', 'n_clicks')]
 )
 def lr_load_cleaned_data(n_clicks):
     files = FileUtils.files('clean')
+    print('Linear Load Clean')
     if len(files) == 0:
         options=[{'label':'No files cleaned yet!', 'value':'None'}]
-        return options
     else:
         options=[{'label':file, 'value':file} for file in files]
-        return options
+    return options
 
 @app.callback(Output('linear-regression-file-do-nothing', 'children'),
             [Input('lr-select-file', 'value')])
@@ -86,9 +86,9 @@ def linear_regression(n):
     df_cleaned = pd.read_csv(path)
     div = [
     html.Div(children=[
-    html.H3(children='Cleaned Data: ' + file),
-    dbc.Table.from_dataframe(df_cleaned.head(10), striped=True, bordered=True, hover=True, style = common.table_style)
-    ],style={'width': '78%', 'display': 'inline-block'}),
+        html.H2(children='Cleaned Data: ' + file),
+        dbc.Table.from_dataframe(df_cleaned.head(10), striped=True, bordered=True, hover=True, style = common.table_style)
+    ]),
     html.Hr(),
     html.H3(children='Variable Selection and Plotting'),
     html.Div([
@@ -247,8 +247,6 @@ def stats_table_and_linear_regression(json_ordered_data):
     data = []
     x_col = col[:-1]
     y_col = col[-1]
-    print(x_col)
-    print(y_col)
     data = [[] for i in range(len(x_col))]
     for i in range(len(x_col)):
         x = dff[x_col[i]].values.tolist()
