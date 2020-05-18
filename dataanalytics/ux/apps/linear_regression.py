@@ -22,10 +22,10 @@ if file is None:
 path = FileUtils.path('clean', file)
 df_cleaned = pd.read_csv(path)
 
-y_ycap_title = go.Layout(title = 'Actual vs Predicted Y Plot', hovermode = 'closest')
+y_ycap_title = go.Layout(title = 'Actual vs Predicted Y Plot', hovermode = 'closest', xaxis={'title': 'Sequence of data points'}, yaxis={'title': 'y,ŷ'})
 y_ycap_fig = go.Figure(data = [], layout = y_ycap_title)
 
-error_title = go.Layout(title = 'Error Plot', hovermode = 'closest')
+error_title = go.Layout(title = 'Error Plot', hovermode = 'closest', xaxis={'title': 'Sequence of data points'}, yaxis={'title': 'Error = y - ŷ'})
 error_fig = go.Figure(data = [], layout = error_title)
 
 layout = html.Div(children=[
@@ -84,10 +84,11 @@ def linear_regression(n):
         file = 'empty'
     path = FileUtils.path('clean', file)
     df_cleaned = pd.read_csv(path)
+    tdf = df_cleaned.head(10).round(4)
     div = [
     html.Div(children=[
         html.H2(children='Cleaned Data: ' + file),
-        dbc.Table.from_dataframe(df_cleaned.head(10), striped=True, bordered=True, hover=True, style = common.table_style)
+        dbc.Table.from_dataframe(tdf, striped=True, bordered=True, hover=True, style = common.table_style)
     ]),
     html.Hr(),
     html.H3(children='Variable Selection and Plotting'),
@@ -100,7 +101,6 @@ def linear_regression(n):
             dcc.Dropdown(
                 id = 'x-var-plot',
                 options=[{'label':i, 'value':i} for i in df_cleaned.columns],
-                #value=['x_var_plot'],
                 multi=False
             ),
 
@@ -108,7 +108,6 @@ def linear_regression(n):
             dcc.Dropdown(
                 id = 'y-var-plot',
                 options=[{'label':i, 'value':i} for i in df_cleaned.columns],
-                #value=['y_var_plot'],
                 multi=False
             ),
 
@@ -118,7 +117,6 @@ def linear_regression(n):
             dcc.Dropdown(
                 id = 'x-var-selection',
                 options=[{'label':i, 'value':i} for i in df_cleaned.columns],
-                #value=['x_var_list'],
                 multi=True
             ),
 
@@ -126,7 +124,6 @@ def linear_regression(n):
             dcc.Dropdown(
                 id = 'y-var-selection',
                 options=[{'label':i, 'value':i} for i in df_cleaned.columns],
-                #value=['y'],
                 multi=False
             ),
         ],style={'width': '48%', 'display': 'inline-block'}),
@@ -280,27 +277,24 @@ def stats_table_and_linear_regression(json_ordered_data):
     table2 = dbc.Table.from_dataframe(df_coeff, striped=True, bordered=True, hover=True, style = common.table_style)
 
     trace_1 = go.Scatter(x = list(range(len(y))), y = ycap,
-                    name = 'Y_Predicted',
+                    name = 'Y Predicted (ŷ)',
                     line = dict(width = 2,
                                 color = 'rgb(229, 151, 50)'))
     trace_2 = go.Scatter(x = list(range(len(y))), y = y,
-                        name = 'Y_Actual',
+                        name = 'Y Actual',
                         line = dict(width = 2,
                                     color = 'rgb(106, 181, 135)'))
     ydiff = [y[i] - ycap[i] for i in range(len(y))]
     trace_3 = go.Scatter(x = list(range(len(y))), y = ydiff,
-                        name = 'Y_Error',
                         line = dict(width = 2,
                                     color = 'rgb(236, 10, 15)'))
 
     fig1 = go.Figure(data = [trace_1, trace_2], layout = y_ycap_title)
     fig2 = go.Figure(data = [trace_3], layout = error_title)
-    error_mean = str(db.get('lr.error_mean'))
-    error_mean = html.P('Error Mean = ' + error_mean)
+    error_mean = html.H2('Error Mean = ' + str(round(db.get('lr.error_mean'), 4)))
 
     ##Team 5 API Integration
-    anova_input = {'y':y,'y_exp':ycap, 'deg_fr':len(params)}
-    anova = get_anova(anova_input)
+    anova = get_anova(y, ycap, len(params))
     db.put('lr.anova', anova)
     anova_div = common.get_anova_div(anova)
 

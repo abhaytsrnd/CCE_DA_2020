@@ -71,14 +71,14 @@ def generate_table(dataframe, max_rows=5):
 ### Regression Common ###
 
 def get_anova_div(anova: {}):
-    anova_df = pd.DataFrame(columns=['Source', 'Sum of Squares', 'Degrees fo Freedom', 'Mean Square'])
-    anova_df.loc[0] = ['Regression', anova['ssr'],anova['dfR'], anova['msr']]
-    anova_df.loc[1] = ['Error', anova['sse'],anova['dfE'], anova['mse']]
-    anova_df.loc[2] = ['Total', anova['sst'],anova['dfT'], anova['s2']]
+    anova_df = pd.DataFrame(columns=['Source', 'Sum of Squares', 'Degrees fo Freedom', 'Mean Square', 'F Statistics'])
+    anova_df.loc[0] = ['Regression', anova['SSR'],anova['DFR'], anova['MSR'], round(anova['F'], 4)]
+    anova_df.loc[1] = ['Error', anova['SSE'],anova['DFE'], anova['MSE'], '']
+    anova_df.loc[2] = ['Total', anova['SST'],anova['DFT'], anova['S2'], '']
+    anova_df = anova_df.round(4)
 
     anova_div = html.Div([
-        dbc.Table.from_dataframe(anova_df, striped=True, bordered=True, hover=True, style = table_style),
-        html.P('F Statistics = ' + str(anova['f']))
+        dbc.Table.from_dataframe(anova_df, striped=True, bordered=True, hover=True, style = table_style)
     ], style = {'margin':'10px'})
     return anova_div
 
