@@ -215,19 +215,26 @@ def clean_save_file(n):
     df = db.get("raw_data")
     file = db.get("file")
     sheet = db.get("sheet")
-    msg = ""
+    div = None
     if (not n is None) and (not df is None):
         try:
-            cleaned_df = data_cleaning(df)
+            df, cleaned_df, defective_df, stats = data_cleaning(df)
+
             if not sheet is None:
                 file = FileUtils.append_file_name(file, sheet)
             file = file.split('.')[0]
             path = FileUtils.path('clean', file)
             cleaned_df.to_csv(path, index=False)
-            msg = "File is Cleaned & Saved Successfully!!"
+
+            col_df = pd.DataFrame(columns=stats['col_name'])
+            col_df.loc[0] = stats['col_type']
+            div = html.Div([
+                common.success_msg("File is Cleaned & Saved Successfully!! Total No of Cleaned Rows = " + str(stats['row_cleaned'])),
+                dbc.Table.from_dataframe(col_df, striped=True, bordered=True, hover=True, style = common.table_style)
+            ], style = {'margin':'10px'})
         except Exception as e:
             return common.error_msg("Data Cleansing API Error: " + str(e))
-    return common.msg(msg)
+    return div
 
 
 @app.callback(
