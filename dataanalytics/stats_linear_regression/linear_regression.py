@@ -138,7 +138,6 @@ class LinearRegression:
         (y_variance, y_std) = Statistics.variance(y, y_stats["mean"])
         y_stats["covariance"] = y_variance
         y_stats["r"] = 1.0
-        y_stats["key"] = "y"
         y_stats["pr"] = 1.0
         stats[0] = y_stats
         for i in range(len(data)):
@@ -146,7 +145,6 @@ class LinearRegression:
             (covariance, r) = Statistics.covariance(data[i], y, s["mean"], y_stats["mean"])
             s["covariance"] = covariance
             s["r"] = r
-            s["key"] = "x"+str(i+1)
             s["pr"] = self.__partial_mat__[0][i+1]
             stats[i+1] = s
         return stats

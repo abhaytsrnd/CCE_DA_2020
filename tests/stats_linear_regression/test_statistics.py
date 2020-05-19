@@ -79,7 +79,6 @@ class TestStatistics(TestCase):
         self.assertEqual(stats["min"], 1)
         self.assertEqual(stats["max"], 9)
 
-
     ###################################
     #### Partial Correlation Tests ####
     ###################################
@@ -134,6 +133,23 @@ class TestStatistics(TestCase):
         mat = Statistics.partial_correlation_matrix([x1, x2, x3, x4])
         actual = [[1.0, -0.9613273119340023, 0.9866069072448754, -0.3903841491779091], [-0.9613273119340022, 1.0, 0.9465782218637125, -0.3513457030175387], [0.9866069072448754, 0.9465782218637125, 1.0, 0.5215083165976273], [-0.3903841491779091, -0.35134570301753876, 0.5215083165976273, 1.0]]
         self.assertEqual(mat, actual)
+
+    def test_partial_correlation_coefficient_greater_than_r(self):
+        #https://stackoverflow.com/questions/51236206/partial-correlation-values-are-larger-than-normal-correlation-in-r
+        hl = [7,15,19,15,21,22,57,15,20,18]
+        disp = [0.000,0.964,0.000,0.000,0.921,0.000,0.000,1.006,0.000,1.011]
+        deg = [9,2,3,4,1,3,1,3,6,1]
+        BC = [1.78e-02,1.05e-06,1.37e-05,7.18e-03,0.00e+00,0.00e+00,0.00e+00 ,4.48e-03,2.10e-06,0.00e+00]
+        var, r = Statistics.covariance(hl, disp)
+        r = round(r , 5)
+        self.assertEqual(r, -0.23787)
+        pr = Statistics.partial_correlation(hl, disp, [deg, BC])
+        pr = round(pr , 5)
+        self.assertEqual(pr, -0.67209)
+        mat = Statistics.partial_correlation_matrix([hl, disp, deg, BC])
+        mat_pr = round(mat[0][1] , 5)
+        self.assertEqual(mat_pr, -0.67209)
+
 
     ########################
     ### Validation Tests ###
