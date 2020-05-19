@@ -99,8 +99,6 @@ def display_data(value):
         return ""
     elif value is None and not db_value is None:
         value = db_value
-    elif not value == db_value:
-        db.reset()
     format = FileUtils.file_format(value)
     if format == 'csv' or format == 'txt':
         path = FileUtils.path('raw', value)
@@ -215,9 +213,10 @@ def clean_save_file(n):
     df = db.get("raw_data")
     file = db.get("file")
     sheet = db.get("sheet")
+    tags = db.get('tags')
     div = None
     if (not n is None) and (not df is None):
-        try:
+        #try:
             df, cleaned_df, defective_df, stats = data_cleaning(df)
 
             if not sheet is None:
@@ -226,14 +225,25 @@ def clean_save_file(n):
             path = FileUtils.path('clean', file)
             cleaned_df.to_csv(path, index=False)
 
+            ### Tag the cleaned data ###
+            if file in tags:
+                tags[file] = tags[file] + 1
+            else:
+                tags[file] = 1
+
             col_df = pd.DataFrame(columns=stats['col_name'])
             col_df.loc[0] = stats['col_type']
+            stat_df = pd.DataFrame(columns=['Tag','Total no of Records', 'Cleaned no of Records', 'Defective no of Records'])
+            stat_df.loc[0] = ['Tag '+ str(tags[file]), stats['row_total'], stats['row_cleaned'], stats['row_defect']]
             div = html.Div([
-                common.success_msg("File is Cleaned & Saved Successfully!! Total No of Cleaned Rows = " + str(stats['row_cleaned'])),
+                common.success_msg("File is Cleaned & Saved Successfully!!"),
+                html.H2('Cleaned Data Statistic'),
+                dbc.Table.from_dataframe(stat_df, striped=True, bordered=True, hover=True, style = common.table_style),
+                html.H2('Cleaned Data Schema'),
                 dbc.Table.from_dataframe(col_df, striped=True, bordered=True, hover=True, style = common.table_style)
             ], style = {'margin':'10px'})
-        except Exception as e:
-            return common.error_msg("Data Cleansing API Error: " + str(e))
+        #except Exception as e:
+        #    return common.error_msg("Data Cleansing API Error: " + str(e))
     return div
 
 

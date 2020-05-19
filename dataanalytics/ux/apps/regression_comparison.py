@@ -20,67 +20,80 @@ layout = html.Div(children=[
     common.navbar("Regression Comparison"),
     html.Br(),
     html.Div([
-        dbc.Button("Load Regression Model", color="info", id = 'rc-load-model', className="mr-4"),
+        dbc.Button("Load Cleaned Files & Regression Model", color="info", id = 'rc-load-model', className="mr-4"),
         html.Br(),
+        html.Hr(),
+        html.H2('Model Comparision'),
         html.Div([
-            dbc.Label('Select Model 1'),
+            dbc.Label('Select Cleaned Data'),
             dcc.Dropdown(
-                id = 'rc-select-model-1',
+                id = 'rc-select-data',
                 options=[{'label':'', 'value':''}],
                 multi=False
             ),
             html.Br(),
         ],
-        style = {'margin': '10px', 'width': '35%', 'display': 'inline-block'}),
-        html.Div([
-            dbc.Label('Select Model 2'),
-            dcc.Dropdown(
-                id = 'rc-select-model-2',
-                options=[{'label':'', 'value':''}],
-                multi=False
-            ),
-            html.Br(),
-        ],
-        style = {'margin': '10px', 'width': '35%', 'display': 'inline-block'}),
+        style = {'width': '35%', 'display': 'inline-block'}),
         html.Br(),
         dbc.Button("Compare", color="primary", id = 'rc-compare', className="mr-4")
-    ], style={'textAlign': 'center'}),
-    html.Hr(),
+    ],style = {'margin': '10px'}),
     html.Div([], id = "rc-compare-display", style = {'margin': '10px'}),
-    html.Div([], id = "rc-select-model-1-do-nothing"),
-    html.Div([], id = "rc-select-model-2-do-nothing"),
+    html.Div([], id = "rc-select-data-do-nothing"),
+    html.Div([
+        html.Br(),
+        html.Hr(),
+        html.H2('Model Details'),
+        html.Div([
+            dbc.Label('Select Model'),
+            dcc.Dropdown(
+                id = 'rc-select-model',
+                options=[{'label':'', 'value':''}],
+                multi=False
+            ),
+            html.Br(),
+        ],
+        style = {'width': '35%', 'display': 'inline-block'}),
+        html.Br(),
+        dbc.Button("Model Details", color="primary", id = 'rc-model', className="mr-4")
+    ],style = {'margin': '10px'}),
+    html.Div([], id = "rc-model-display", style = {'margin': '10px'}),
+    html.Div([], id = "rc-select-model-do-nothing"),
 ])
 
 @app.callback(
-    [Output("rc-select-model-1", "options"),
-    Output("rc-select-model-2", "options")],
+    [Output("rc-select-data", "options"),
+    Output("rc-select-model", "options")],
     [Input('rc-load-model', 'n_clicks')]
 )
 def cr_load_models(n_clicks):
+    files = FileUtils.files('clean')
+    f = []
+    for file in files:
+        f.append({'label':file, 'value':file})
     models = db.get('models')
-    m = [{'label':'', 'value':''}]
+    m = []
     if models is None:
-        return m, m
-    for k, v in models.items():
+        return f,m
+    for k,v in models.items():
         m.append({'label':k, 'value':k})
-    return m, m
+    return f,m
 
 @app.callback(
-    Output('rc-select-model-1-do-nothing' , "children"),
-    [Input('rc-select-model-1', 'value')]
+    Output('rc-select-data-do-nothing' , "children"),
+    [Input('rc-select-data', 'value')]
 )
-def rc_select_model_1(value):
+def rc_select_file(value):
     if not value is None:
-        db.put("rc.model_1", value)
+        db.put("rc.file", value)
     return None
 
 @app.callback(
-    Output('rc-select-model-2-do-nothing' , "children"),
-    [Input('rc-select-model-2', 'value')]
+    Output('rc-select-model-do-nothing' , "children"),
+    [Input('rc-select-model', 'value')]
 )
-def rc_select_model_2(value):
+def rc_select_file(value):
     if not value is None:
-        db.put("rc.model_2", value)
+        db.put("rc.model", value)
     return None
 
 @app.callback(
@@ -88,24 +101,79 @@ def rc_select_model_2(value):
     [Input('rc-compare', 'n_clicks')]
 )
 def rc_compare(n_clicks):
-    model_1_key = db.get("rc.model_1")
-    model_2_key = db.get("rc.model_2")
-    if model_1_key is None:
+    file = db.get("rc.file")
+    models = db.get('models')
+    if file is None:
         return common.error_msg("Select Models for Comparison!!")
-    div_1 = get_model_div(model_1_key)
-    if model_2_key is None or (model_1_key == model_2_key):
-        return div_1
-    div_2 = get_model_div(model_2_key)
+    if models is None:
+        return common.error_msg("No Model has been trainned, Please Train Models First!!")
+    compare_div = get_compare_div(file)
     return html.Div([
-        div_1,
+        compare_div,
         html.Br(),
-        html.Hr(),
-        div_2])
+        html.Hr()])
+
+def get_compare_div(file):
+    models = db.get('models')
+    keys = []
+    for key, value in models.items():
+        f = value['file']
+        if f == file:
+            keys.append(key)
+    if len(keys) == 0:
+        return common.error_msg("No Model has been trainned for "+ file +". Please Train Models First!!")
+
+    tags = []
+    for tag in get_property(keys, 'tag'):
+        tags.append('Tag '+ str(tag))
+    df = pd.DataFrame(columns = ['Model Name'] + keys)
+    df.loc[0] = ['Tag :'] + tags
+    df.loc[1] = ['Type :'] + get_property(keys, 'type')
+    df.loc[2] = ['No of Coefficients :'] + get_property(keys, 'params')
+    df.loc[3] = ['F Statistics :'] + get_property(keys, 'anova', 'F')
+    df.loc[4] = ['Cofficient of Determination :'] + get_property(keys, 'anova', 'R2')
+    df.loc[5] = ['Error Mean :'] + get_property(keys, 'error_mean')
+    df.round(4)
+    div = html.Div([
+        dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, style = common.table_style)
+    ])
+    return div
+
+def get_property(keys, access_key, second_access_key = None) -> []:
+    models = db.get('models')
+    prop = []
+    for key in keys:
+        if second_access_key is None:
+            value = models[key][access_key]
+        else:
+            value  = models[key][access_key][second_access_key]
+        if isinstance(value, int) or isinstance(value, float):
+            value = round(value, 4)
+        if isinstance(value, list):
+            value = len(value)
+        prop.append(value)
+    return prop
+
+
+@app.callback(
+    Output('rc-model-display' , "children"),
+    [Input('rc-model', 'n_clicks')]
+)
+def rc_compare(n_clicks):
+    key = db.get("rc.model")
+    models = db.get('models')
+    if key is None:
+        return common.error_msg("Select Model for Details!!")
+    if models is None:
+        return common.error_msg("No Model has been trainned, Please Train Models First!!")
+    return get_model_div(key)
 
 def get_model_div(key):
     models = db.get('models')
     model = models[key]
     summary = model['summary']
+    tag = model['tag']
+    type = model['type']
     params = model['params']
     anova = model['anova']
     x_col = model['x_col']
@@ -122,11 +190,13 @@ def get_model_div(key):
 
     div = html.Div([
         html.H2("Model: " + key),
+        html.H2("Tag: Tag" + str(tag)),
+        html.H2("Type: " + type),
         html.H2('Statistics Summary Table'),
         stats_div,
         html.H2('Linear Regression Coefficients'),
         coeff_div,
-        html.P('Error Mean = ' + str(error_mean)),
+        html.H2('Error Mean = ' + str(round(error_mean,4))),
         html.Br(),
         html.H2('Anova'),
         anova_div

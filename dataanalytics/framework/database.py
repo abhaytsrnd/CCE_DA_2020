@@ -25,6 +25,13 @@ class Database:
     def put(self, key: str, value):
         self.__db__[key] = value
 
+    def clear(self, prefix: str):
+        clone_db = {}
+        for key, value in self.__db__.items():
+            if not key.startswith(prefix):
+                clone_db[key] = value
+        self.__db__ = clone_db
+
     def reset(self):
         self.__db__ = {}
 

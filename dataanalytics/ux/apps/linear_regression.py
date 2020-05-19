@@ -69,10 +69,9 @@ def lr_load_cleaned_data(n_clicks):
 @app.callback(Output('linear-regression-file-do-nothing', 'children'),
             [Input('lr-select-file', 'value')])
 def linear_regression_file_value(value):
-    file = db.get('lr.file')
     if not value is None:
-        file = value
-        db.put('lr.file', file)
+        db.clear('lr.')
+        db.put('lr.file', value)
     return None
 
 @app.callback(Output('linear-regression', 'children'),
@@ -88,6 +87,7 @@ def linear_regression(n):
     div = [
     html.Div(children=[
         html.H2(children='Cleaned Data: ' + file),
+        html.H2(children='Tag: Tag ' + str(db.get('tags')[file])),
         dbc.Table.from_dataframe(tdf, striped=True, bordered=True, hover=True, style = common.table_style)
     ]),
     html.Hr(),
@@ -341,13 +341,15 @@ def lr_predict_data(n_clicks):
     return common.success_msg('Predicted Dependent Variable = ' + str(predicted))
 
 @app.callback(
-    Output("lr-save-display", "children"),
+    [Output("lr-save-display", "children"),
+    Output("lr-save-model", "value"),],
     [Input('lr-save', 'n_clicks')]
 )
 def lr_save_model(n_clicks):
     model_name = db.get('cl.model_name')
-    if model_name is None:
-        return ""
+    if model_name is None or model_name == '':
+        return ("","")
+    file = db.get("lr.file")
     model = db.get("lr.model")
     params = db.get("lr.params")
     anova = db.get("lr.anova")
@@ -356,6 +358,10 @@ def lr_save_model(n_clicks):
     x_col = db.get("lr.x_col")
     y_col = db.get("lr.y_col")
     m = {
+        'file': file,
+        'tag': db.get('tags')[file],
+        'type': 'linear',
+        'name': model_name,
         'model': model,
         'params': params,
         'anova': anova,
@@ -368,7 +374,7 @@ def lr_save_model(n_clicks):
         models = {}
         db.put('models', models)
     models[model_name] = m
-    return common.success_msg('Model "'+ model_name +'" Saved Successfully.')
+    return (common.success_msg('Model "'+ model_name +'" Saved Successfully.'), "")
 
 def get_predict_data_list(predict_data: str) -> []:
     predict_data = predict_data.split(',')
