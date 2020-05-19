@@ -216,7 +216,7 @@ def clean_save_file(n):
     tags = db.get('tags')
     div = None
     if (not n is None) and (not df is None):
-        #try:
+        try:
             df, cleaned_df, defective_df, stats = data_cleaning(df)
 
             if not sheet is None:
@@ -242,8 +242,8 @@ def clean_save_file(n):
                 html.H2('Cleaned Data Schema'),
                 dbc.Table.from_dataframe(col_df, striped=True, bordered=True, hover=True, style = common.table_style)
             ], style = {'margin':'10px'})
-        #except Exception as e:
-        #    return common.error_msg("Data Cleansing API Error: " + str(e))
+        except Exception as e:
+            return common.error_msg("Data Cleansing API Error: " + str(e))
     return div
 
 
