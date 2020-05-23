@@ -276,7 +276,7 @@ def performMultipleRegression(input_data, regression, order):
             data.indep_vars_matrix.append(x_arr)
 
     coeff_matrix = performMultipleRegressionForLinearFit(data)
-    print("\nCoefficient Matrix:\n",coeff_matrix)
+    #print("\nCoefficient Matrix initial:\n",coeff_matrix)
 
     output =[]
     i=0
@@ -295,15 +295,17 @@ def performMultipleRegression(input_data, regression, order):
 
     print("\nPredicted values of Y:\n", output,"\n")
 
-    import matplotlib.pyplot as plt
-    if input_data.indep_vars == 1:
-        plt.scatter(input_data.indep_vars_matrix, input_data.dep_var_matrix)
-        if regression == regression_type.polynomial or regression == regression_type.linear or regression == regression_type.logarithmic or regression == regression_type.reciprocal:
-            plt.plot(input_data.indep_vars_matrix, input_data.dep_var_matrix, label='input')
-            plt.plot(input_data.indep_vars_matrix, output, label='output')
-        plt.scatter(input_data.indep_vars_matrix, output)
-        plt.legend(loc='best')
-        plt.show()
+    i = 0
+    for coeff in coeff_matrix:
+        if regression == regression_type.exponential:
+            coeff[0] = np.exp(coeff[0])
+        elif regression == regression_type.power and i == 0:
+            coeff[0] = np.exp(coeff[0])
+        i+=1
+    print("\nCoefficient Matrix final:\n",coeff_matrix)
+
+    
+
 
 n = len(sys.argv)
 order = 1
@@ -330,5 +332,3 @@ else:
     print("\nUsage: python Multiple_Regression_transformation_v1.py <regression_type> <order>")
     print("\nRequired:\n", "<regression_type>: polynomial | logarithmic | reciprocal | power | exponential | linear")
     print("\nOptional:\n", "<order>: Number > 0")
-
-
