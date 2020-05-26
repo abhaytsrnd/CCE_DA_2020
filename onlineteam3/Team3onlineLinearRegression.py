@@ -151,22 +151,26 @@ class Team3onlineLinearRegression:
             corr_coef = round(arg1[in_de_col_name].sum()/ma.sqrt(arg1[sq_in_col_name].sum()*arg1[sq_dep_col_name].sum()),3)
             correlation_coefficients[ind_var] = corr_coef
             #print ("For covariance: in_de_col_name:::",in_de_col_name)
-            SampleSpace = len(arg2[1][i])
+            #print ("For covariance sum_of_squares: arg1[in_de_col_name].sum() :::",arg1[in_de_col_name].sum() )
+            SampleSpace = len(arg1)
+            #print ("For covariance SampleSpace::::",SampleSpace)
             if(SampleSpace <= 1):
                covariance = 0
                variance = 0
             else:
-               covariance = round((arg1[in_de_col_name].sum()/(SampleSpace-1)),3)
-               variance = round((arg1[sq_in_col_name].sum()/(SampleSpace-1)),3)
+               covariance = round(((arg1[in_de_col_name].sum())/(SampleSpace-1)),3)
+               variance = round(((arg1[sq_in_col_name].sum())/(SampleSpace-1)),3)
             all_covariance[ind_var] = covariance
             #print ("For variance: sq_in_col_name:::",sq_in_col_name)
+            #print ("For variance sum_of_squares: arg1[sq_in_col_name].sum() :::",arg1[sq_in_col_name].sum() )
+            #print ("For variance SampleSpace::::",SampleSpace)
             all_variance[ind_var] = variance
             i=i+1
 
         if(SampleSpace <= 1):
             covariance = variance = 0
         else:
-            variance = covariance = round((arg1[sq_dep_col_name].sum()/(SampleSpace-1)),3)
+            variance = covariance = round(((arg1[sq_dep_col_name].sum())/(SampleSpace-1)),3)
         all_variance[arg2[0]] = variance
         all_covariance[arg2[0]] = covariance
         #print("\nCorrelation Coefficients are: ",correlation_coefficients)
