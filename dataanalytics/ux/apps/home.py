@@ -190,7 +190,6 @@ def apply_file_properties(n):
         path = FileUtils.path('raw', file)
         sheet = db.get("sheet")
         df = DataUtils.read_xls(path, sheet, header)
-        print(df)
         msg = "Following Properties Applied. Header="+ str(header)
 
     table = dbc.Table.from_dataframe(df.head(10), striped=True, bordered=True, hover=True, style = common.table_style)
@@ -299,10 +298,7 @@ def xls_file_sheet(value):
         xls = pd.ExcelFile(path)
         df = pd.read_excel(xls, value)
         table = html.Div([
-            dash_table.DataTable(
-                data=df.iloc[:10].to_dict('rows'),
-                columns=[{'name': i, 'id': i} for i in df.columns]
-            ),
+            dbc.Table.from_dataframe(df.head(10), striped=True, bordered=True, hover=True, style = common.table_style),
             html.Hr(),
         ])
         div = [html.Br(),

@@ -158,8 +158,9 @@ def linear_regression(n):
         ]),
     html.Div([
         html.Hr(),
-        dbc.Label('Predict Data (pass comma separated) Dependent Variables'),
-        dbc.Input(id="lr-predict-data", placeholder="Model Name", type="text"),
+        html.H2('Predict Data (pass comma separated) Independent Variables'),
+        html.Div([], id='lr-predict-ind-var'),
+        dbc.Input(id="lr-predict-data", placeholder="x1,x2,x3,x4,x5, ...", type="text"),
         html.Br(),
         dbc.Button("Predict", color="primary", id = 'lr-predict'),
         html.Div([], id='lr-predict-display'),
@@ -167,7 +168,7 @@ def linear_regression(n):
         ]),
     html.Div([
         html.Hr(),
-        dbc.Label('Save Model'),
+        html.H2('Save Model'),
         dbc.Input(id="lr-save-model", placeholder="Model Name", type="text"),
         html.Br(),
         dbc.Button("Save", color="primary", id = 'lr-save'),
@@ -227,7 +228,8 @@ def scatter_plot(x_var_value, y_var_value):
                 Output('lr-y-ycap-plot','figure'),
                 Output('lr-error-plot','figure'),
                 Output('lr-error-mean', 'children'),
-                Output('lr-anova-table','children')],
+                Output('lr-anova-table','children'),
+                Output('lr-predict-ind-var','children')],
             [Input('ordered-df', 'children')])
 def stats_table_and_linear_regression(json_ordered_data):
     if json_ordered_data is None:
@@ -236,6 +238,7 @@ def stats_table_and_linear_regression(json_ordered_data):
         generate_table(pd.DataFrame(columns=[])),
         y_ycap_fig,
         error_fig,
+        "",
         "",
         "")
     dff = pd.read_json(json_ordered_data, orient='split')
@@ -268,6 +271,7 @@ def stats_table_and_linear_regression(json_ordered_data):
         y_ycap_fig,
         error_fig,
         "",
+        "",
         "")
 
     df_stats = common.get_stats_df(summary, x_col, y_col)
@@ -298,13 +302,16 @@ def stats_table_and_linear_regression(json_ordered_data):
     db.put('lr.anova', anova)
     anova_div = common.get_anova_div(anova)
 
+    independent_var = ','.join(x_col)
+
     return (common.success_msg("Linear Regression API Exceuted Successfully!!"),
     table1,
     table2,
     fig1,
     fig2,
     error_mean,
-    anova_div)
+    anova_div,
+    html.H2(independent_var))
 
 @app.callback(
     Output('lr-predict-data-do-nothing' , "children"),
@@ -330,15 +337,16 @@ def cl_model_name_input(value):
 )
 def lr_predict_data(n_clicks):
     predict_data = db.get('cl.predict_data')
+    y_col = db.get("lr.y_col")
     if predict_data is None:
         return ""
     predict_data = get_predict_data_list(predict_data)
     model = db.get("lr.model")
     params = db.get("lr.params")
     if len(predict_data) != len(params) - 1:
-        return common.error_msg('Pass Valid InDependent Variables!!')
+        return common.error_msg('Pass Valid Independent Variables!!')
     predicted = model.predict(predict_data)
-    return common.success_msg('Predicted Dependent Variable = ' + str(predicted))
+    return common.success_msg('Predicted Dependent Variable (' + y_col +') = ' + str(predicted))
 
 @app.callback(
     [Output("lr-save-display", "children"),
