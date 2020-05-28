@@ -171,34 +171,50 @@ def rc_compare(n_clicks):
 def get_model_div(key):
     models = db.get('models')
     model = models[key]
-    summary = model['summary']
     tag = model['tag']
     type = model['type']
+    
     params = model['params']
     anova = model['anova']
     x_col = model['x_col']
     y_col = model['y_col']
     error_mean = model['error_mean']
-
-    df_stats = common.get_stats_df(summary, x_col, y_col)
-    stats_div = dbc.Table.from_dataframe(df_stats, striped=True, bordered=True, hover=True, style = common.table_style)
-
-    df_coeff = common.get_coeff_df(params, x_col)
+    
+    if type == 'linear':
+        df_coeff = common.get_coeff_df(params, x_col)
+    else:
+        df_coeff = common.hor_get_coeff_df(params)
     coeff_div = dbc.Table.from_dataframe(df_coeff, striped=True, bordered=True, hover=True, style = common.table_style)
 
     anova_div = common.get_anova_div(anova)
 
-    div = html.Div([
-        html.H2("Model: " + key),
-        html.H2("Tag: Tag" + str(tag)),
-        html.H2("Type: " + type),
-        html.H2('Statistics Summary Table'),
-        stats_div,
-        html.H2('Linear Regression Coefficients'),
-        coeff_div,
-        html.H2('Error Mean = ' + str(round(error_mean,4))),
-        html.Br(),
-        html.H2('Anova'),
-        anova_div
-    ])
+    if type == 'linear':
+        summary = model['summary']
+        df_stats = common.get_stats_df(summary, x_col, y_col)
+        stats_div = dbc.Table.from_dataframe(df_stats, striped=True, bordered=True, hover=True, style = common.table_style)
+        div = html.Div([
+            html.H2("Model: " + key),
+            html.H2("Tag: Tag" + str(tag)),
+            html.H2("Type: " + type),
+            html.H2('Statistics Summary Table'),
+            stats_div,
+            html.H2('Linear Regression Coefficients'),
+            coeff_div,
+            html.H2('Error Mean = ' + str(round(error_mean,4))),
+            html.Br(),
+            html.H2('Anova'),
+            anova_div
+        ])
+    else:
+        div = html.Div([
+            html.H2("Model: " + key),
+            html.H2("Tag: Tag" + str(tag)),
+            html.H2("Type: " + type),
+            html.H2('Higher Order Polynomial Regression Coefficients'),
+            coeff_div,
+            html.H2('Error Mean = ' + str(round(error_mean,4))),
+            html.Br(),
+            html.H2('Anova'),
+            anova_div
+        ])
     return div
