@@ -9,10 +9,10 @@ def navbar(page_name: str):
             dbc.NavItem(dbc.NavLink(page_name)),
             dbc.DropdownMenu(
                 children=[
-                    #dbc.DropdownMenuItem("Home", href="/home", id = "home-refresh", style = {'font-size': '16px'}),
                     dbc.DropdownMenuItem("Linear Regression", href="/apps/linear-regression", id = "linear-regression", style = {'font-size': '16px'}),
                     dbc.DropdownMenuItem("Higher Order Regression", href="/apps/higher-order-regression", id = "higher-order-regression", style = {'font-size': '16px'}),
-                    dbc.DropdownMenuItem("Regression Comparison", href="/apps/regression-comparison", id = "regression-comparison", style = {'font-size': '16px'})
+                    dbc.DropdownMenuItem("Regression Comparison", href="/apps/regression-comparison", id = "regression-comparison", style = {'font-size': '16px'}),
+                    dbc.DropdownMenuItem("Time Series Analysis", href="/apps/time-series-analysis", id = "time-series-analysis", style = {'font-size': '16px'})
                 ],
                 nav=True,
                 in_navbar=True,
@@ -102,7 +102,7 @@ def get_coeff_df(params: [], x_col: []):
     df_coeff['Var_Name'] = col
     df_coeff = df_coeff[['Var_Name','Coefficient']]
     return df_coeff
-    
+
 def hor_get_coeff_df(params: []):
     col = ['Constant', 'X']
     for c in range(2,len(params)):
