@@ -41,5 +41,7 @@ def ts_do_time_series_analysis(n_clicks):
         msg = 'Time Series Analysis Started on Thread-1'
     except:
         msg = 'Error: unable to start Thread!!'
+        print(msg)
+        return common.error_msg(msg)
     print(msg)
     return common.success_msg(msg)

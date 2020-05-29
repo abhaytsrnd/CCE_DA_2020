@@ -1,4 +1,5 @@
 import threading
+import os
 
 class TSThread(threading.Thread):
 
@@ -11,3 +12,6 @@ class TSThread(threading.Thread):
    def run(self):
       msg = '$$RUN Time Series Analysis Thread : ' + self.name
       print(msg)
+      os.system('pwd')
+      os.system('python3 dataanalytics/ts/ARIMA_UI.py')
+      msg = '$$RUN Time Series Analysis Thread Task Completed : ' + self.name
