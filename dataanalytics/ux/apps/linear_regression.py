@@ -94,19 +94,19 @@ def linear_regression(n):
     html.H3(children='Variable Selection and Plotting'),
     html.Div([
         html.Div([
-            html.Div(id='ordered-df', style={'display': 'none'}),
+            html.Div(id='lr-ordered-df', style={'display': 'none'}),
             html.Hr(),
 
             html.Label('Select X-axis variable for scatter plot'),
             dcc.Dropdown(
-                id = 'x-var-plot',
+                id = 'lr-x-var-plot',
                 options=[{'label':i, 'value':i} for i in df_cleaned.columns],
                 multi=False
             ),
 
             html.Label('Select Y-axis variable for scatter plot'),
             dcc.Dropdown(
-                id = 'y-var-plot',
+                id = 'lr-y-var-plot',
                 options=[{'label':i, 'value':i} for i in df_cleaned.columns],
                 multi=False
             ),
@@ -115,14 +115,14 @@ def linear_regression(n):
             html.H2('Perform Linear Regression'),
             html.Label('Select X variable from Dropdown'),
             dcc.Dropdown(
-                id = 'x-var-selection',
+                id = 'lr-x-var-selection',
                 options=[{'label':i, 'value':i} for i in df_cleaned.columns],
                 multi=True
             ),
 
             html.Label('Select Y variable from Dropdown'),
             dcc.Dropdown(
-                id = 'y-var-selection',
+                id = 'lr-y-var-selection',
                 options=[{'label':i, 'value':i} for i in df_cleaned.columns],
                 multi=False
             ),
@@ -130,7 +130,7 @@ def linear_regression(n):
 
         html.Div([
             html.Label('Scatter Plot'),
-            dcc.Graph(id='scatter-plot'),
+            dcc.Graph(id='lr-scatter-plot'),
         ], style={'width': '48%', 'float': 'right', 'display': 'inline-block'}),
     ]),
     html.Hr(),
@@ -139,9 +139,9 @@ def linear_regression(n):
         html.Div([], id = 'linear-regression-status'),
         html.Br(),
         html.H2('Statistics Summary Table'),
-        html.Table(id='stats_table'),
+        html.Table(id='lr-stats-table'),
         html.H2('Linear Regression Coefficients'),
-        html.Table(id='coeff_table'),
+        html.Table(id='lr-coeff-table'),
         html.H2('Plot')
     ]),
 
@@ -178,9 +178,9 @@ def linear_regression(n):
     ]
     return div
 
-@app.callback(Output('ordered-df', 'children'),
-            [Input('x-var-selection', 'value'),
-             Input('y-var-selection', 'value') ])
+@app.callback(Output('lr-ordered-df', 'children'),
+            [Input('lr-x-var-selection', 'value'),
+             Input('lr-y-var-selection', 'value') ])
 def ordering_data(x_var_value, y_var_value):
     if x_var_value is None or y_var_value is None:
         return None
@@ -189,9 +189,9 @@ def ordering_data(x_var_value, y_var_value):
     ordered_df = pd.concat([dfx,dfy],axis=1)
     return ordered_df.to_json(date_format='iso', orient='split')
 
-@app.callback(Output('scatter-plot', 'figure'),
-            [Input('x-var-plot', 'value'),
-             Input('y-var-plot', 'value') ])
+@app.callback(Output('lr-scatter-plot', 'figure'),
+            [Input('lr-x-var-plot', 'value'),
+             Input('lr-y-var-plot', 'value') ])
 def scatter_plot(x_var_value, y_var_value):
     if x_var_value is None or y_var_value is None:
         return {}
@@ -223,14 +223,14 @@ def scatter_plot(x_var_value, y_var_value):
     }
 
 @app.callback([Output('linear-regression-status', 'children'),
-                Output('stats_table', 'children'),
-                Output('coeff_table', 'children'),
+                Output('lr-stats-table', 'children'),
+                Output('lr-coeff-table', 'children'),
                 Output('lr-y-ycap-plot','figure'),
                 Output('lr-error-plot','figure'),
                 Output('lr-error-mean', 'children'),
                 Output('lr-anova-table','children'),
                 Output('lr-predict-ind-var','children')],
-            [Input('ordered-df', 'children')])
+            [Input('lr-ordered-df', 'children')])
 def stats_table_and_linear_regression(json_ordered_data):
     if json_ordered_data is None:
         return (common.msg(None),
@@ -319,16 +319,16 @@ def stats_table_and_linear_regression(json_ordered_data):
 )
 def lr_predict_input(value):
     if not value is None:
-        db.put("cl.predict_data", value)
+        db.put("lr.predict_data", value)
     return None
 
 @app.callback(
     Output('lr-save-model-do-nothing' , "children"),
     [Input('lr-save-model', 'value')]
 )
-def cl_model_name_input(value):
+def lr_model_name_input(value):
     if not value is None:
-        db.put("cl.model_name", value)
+        db.put("lr.model_name", value)
     return None
 
 @app.callback(
@@ -336,7 +336,7 @@ def cl_model_name_input(value):
     [Input('lr-predict', 'n_clicks')]
 )
 def lr_predict_data(n_clicks):
-    predict_data = db.get('cl.predict_data')
+    predict_data = db.get('lr.predict_data')
     y_col = db.get("lr.y_col")
     if predict_data is None:
         return ""
@@ -354,7 +354,7 @@ def lr_predict_data(n_clicks):
     [Input('lr-save', 'n_clicks')]
 )
 def lr_save_model(n_clicks):
-    model_name = db.get('cl.model_name')
+    model_name = db.get('lr.model_name')
     if model_name is None or model_name == '':
         return ("","")
     file = db.get("lr.file")
@@ -368,10 +368,12 @@ def lr_save_model(n_clicks):
     m = {
         'file': file,
         'tag': db.get('tags')[file],
-        'type': 'linear',
+        'type': 'Linear',
         'name': model_name,
         'model': model,
+        'order': '-',
         'params': params,
+        'no_of_coeff': len(params),
         'anova': anova,
         'summary': summary,
         'x_col': x_col,

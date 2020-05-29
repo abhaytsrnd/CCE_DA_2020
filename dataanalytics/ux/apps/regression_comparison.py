@@ -129,10 +129,13 @@ def get_compare_div(file):
     df = pd.DataFrame(columns = ['Model Name'] + keys)
     df.loc[0] = ['Tag :'] + tags
     df.loc[1] = ['Type :'] + get_property(keys, 'type')
-    df.loc[2] = ['No of Coefficients :'] + get_property(keys, 'params')
-    df.loc[3] = ['F Statistics :'] + get_property(keys, 'anova', 'F')
-    df.loc[4] = ['Cofficient of Determination :'] + get_property(keys, 'anova', 'R2')
-    df.loc[5] = ['Error Mean :'] + get_property(keys, 'error_mean')
+    df.loc[2] = ['Independent Variables :'] + get_property(keys, 'x_col')
+    df.loc[3] = ['Dependent Variable :'] + get_property(keys, 'y_col')
+    df.loc[4] = ['Order :'] + get_property(keys, 'order')
+    df.loc[5] = ['No of Coefficients Estimated :'] + get_property(keys, 'no_of_coeff')
+    df.loc[6] = ['F Statistics :'] + get_property(keys, 'anova', 'F')
+    df.loc[7] = ['Cofficient of Determination :'] + get_property(keys, 'anova', 'R2')
+    df.loc[8] = ['Error Mean :'] + get_property(keys, 'error_mean')
     df.round(4)
     div = html.Div([
         dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, style = common.table_style)
@@ -149,11 +152,10 @@ def get_property(keys, access_key, second_access_key = None) -> []:
             value  = models[key][access_key][second_access_key]
         if isinstance(value, int) or isinstance(value, float):
             value = round(value, 4)
-        if isinstance(value, list):
-            value = len(value)
+        if access_key == 'x_col':
+            value = ','.join(value)
         prop.append(value)
     return prop
-
 
 @app.callback(
     Output('rc-model-display' , "children"),
@@ -171,50 +173,40 @@ def rc_compare(n_clicks):
 def get_model_div(key):
     models = db.get('models')
     model = models[key]
+    summary = model['summary']
     tag = model['tag']
     type = model['type']
-    
     params = model['params']
     anova = model['anova']
     x_col = model['x_col']
     y_col = model['y_col']
     error_mean = model['error_mean']
-    
-    if type == 'linear':
+
+    df_stats = common.get_stats_df(summary, x_col, y_col)
+    stats_div = dbc.Table.from_dataframe(df_stats, striped=True, bordered=True, hover=True, style = common.table_style)
+
+    if type == 'Linear':
         df_coeff = common.get_coeff_df(params, x_col)
     else:
         df_coeff = common.hor_get_coeff_df(params)
+
     coeff_div = dbc.Table.from_dataframe(df_coeff, striped=True, bordered=True, hover=True, style = common.table_style)
 
     anova_div = common.get_anova_div(anova)
 
-    if type == 'linear':
-        summary = model['summary']
-        df_stats = common.get_stats_df(summary, x_col, y_col)
-        stats_div = dbc.Table.from_dataframe(df_stats, striped=True, bordered=True, hover=True, style = common.table_style)
-        div = html.Div([
-            html.H2("Model: " + key),
-            html.H2("Tag: Tag" + str(tag)),
-            html.H2("Type: " + type),
-            html.H2('Statistics Summary Table'),
-            stats_div,
-            html.H2('Linear Regression Coefficients'),
-            coeff_div,
-            html.H2('Error Mean = ' + str(round(error_mean,4))),
-            html.Br(),
-            html.H2('Anova'),
-            anova_div
-        ])
-    else:
-        div = html.Div([
-            html.H2("Model: " + key),
-            html.H2("Tag: Tag" + str(tag)),
-            html.H2("Type: " + type),
-            html.H2('Higher Order Polynomial Regression Coefficients'),
-            coeff_div,
-            html.H2('Error Mean = ' + str(round(error_mean,4))),
-            html.Br(),
-            html.H2('Anova'),
-            anova_div
-        ])
+    div = html.Div([
+        html.H2("Model: " + key),
+        html.H2("Tag: Tag" + str(tag)),
+        html.H2("Type: " + type),
+        html.H2('Statistics Summary Table'),
+        stats_div,
+        html.H2('Independent Variables : ' + ','.join(x_col)),
+        html.H2('Dependent Variable : ' + str(y_col)),
+        html.H2(type + ' Regression Coefficients'),
+        coeff_div,
+        html.H2('Error Mean = ' + str(round(error_mean,4))),
+        html.Br(),
+        html.H2('Anova'),
+        anova_div
+    ])
     return div
