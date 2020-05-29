@@ -239,7 +239,64 @@ def performPolynomialMatrixFormation(input_data, data, series_matrix, index, ord
                     data.indep_vars_matrix[k].append(value)
                 k+=1
 
-def performMultipleRegression(input_data, regression, order):
+def pedictHigherOrderRegression(input_x, coeff_matrix, regression, order):
+    predict_data = InputData()
+    predict_data.sample_size = 1
+    predict_data.indep_vars = len(input_x)
+    input_data = InputData()
+    input_data.indep_vars_matrix = [input_x]
+    input_data.indep_vars = len(input_x)
+    input_data.sample_size = 1
+
+    if regression == regression_type.polynomial:
+        series_matrix =[]
+        for i in range(1,input_data.indep_vars+1):
+            series_matrix.append(0)
+        predict_data.indep_vars = 0
+        performPolynomialMatrixFormation(input_data, predict_data, series_matrix, 1, order)
+        #print(data.indep_vars_matrix)
+        #print(data.indep_vars, data.sample_size)
+    else:
+        predict_data.indep_vars = len(input_x)
+        for x in input_data.indep_vars_matrix:
+            x_arr = []
+            x_arr.append(1)
+            for xi in x:
+                if regression == regression_type.logarithmic or regression == regression_type.power:
+                    x_arr.append(np.log(xi))
+                else:
+                    x_arr.append(xi)
+            predict_data.indep_vars_matrix.append(x_arr)
+    
+    i = 0
+    cMatrix = coeff_matrix.copy()
+    for coeff in cMatrix:
+        if regression == regression_type.exponential:
+            coeff[0] = np.log(coeff[0])
+        elif regression == regression_type.power and i == 0:
+            coeff[0] = np.log(coeff[0])
+        i+=1
+
+    i=0
+    output = 0
+    for seq in predict_data.indep_vars_matrix:
+        output = 0
+        j = 0
+        for coeff in cMatrix:
+            output += (coeff[0] * seq[j])
+            j+=1
+        if regression == regression_type.reciprocal:
+            output = 1/output
+        elif regression == regression_type.power or regression == regression_type.exponential:
+            output = np.exp(output)
+        output = round(output,2)
+        i+=1
+
+    return output
+
+
+
+def performHigherOrderRegression(input_data, regression, order):
     print("\nInput Independent parameters, X:\n", input_data.indep_vars_matrix)
     print("\nInput Dependent parameters, Y:\n", input_data.dep_var_matrix)
 
@@ -302,13 +359,13 @@ def performMultipleRegression(input_data, regression, order):
         elif regression == regression_type.power and i == 0:
             coeff[0] = np.exp(coeff[0])
         i+=1
-    print("\nCoefficient Matrix final:\n",coeff_matrix)
 
-    
+    return coeff_matrix;
 
 
 n = len(sys.argv)
 order = 1
+coefficient_matrix = []
 reg_type = "polynomial"
 if n > 1:
     reg_type = sys.argv[1]
@@ -317,18 +374,27 @@ if n > 2:
     order = int(sys.argv[2])
 
 if reg_type == "polynomial":
-    performMultipleRegression(quadratic_input_data, regression_type.polynomial, order)
+    coefficient_matrix = performHigherOrderRegression(quadratic_input_data, regression_type.polynomial, order)
+    output = pedictHigherOrderRegression([10], coefficient_matrix, regression_type.polynomial, order)
 elif reg_type == "logarithmic":
-    performMultipleRegression(log_input_data, regression_type.logarithmic, 0)
+    coefficient_matrix = performHigherOrderRegression(log_input_data, regression_type.logarithmic, 0)
+    output = pedictHigherOrderRegression([1], coefficient_matrix, regression_type.logarithmic, 0)
 elif reg_type == "reciprocal":
-    performMultipleRegression(reciprocal_input_data, regression_type.reciprocal, 0)
+    coefficient_matrix = performHigherOrderRegression(reciprocal_input_data, regression_type.reciprocal, 0)
+    output = pedictHigherOrderRegression([5.94,5.31,0.29], coefficient_matrix, regression_type.reciprocal, 0)
 elif reg_type == "power":
-    performMultipleRegression(power_input_data, regression_type.power, 0)
+    coefficient_matrix = performHigherOrderRegression(power_input_data, regression_type.power, 0)
+    output = pedictHigherOrderRegression([8.1], coefficient_matrix, regression_type.power, 0)
 elif reg_type == "exponential":
-    performMultipleRegression(exponential_input_data, regression_type.exponential, 0)
+    coefficient_matrix = performHigherOrderRegression(exponential_input_data, regression_type.exponential, 0)
+    output = pedictHigherOrderRegression([45], coefficient_matrix, regression_type.exponential, 0)
 elif reg_type == "linear":
-    performMultipleRegression(linear_input_data, regression_type.linear, 0)
+    coefficient_matrix = performHigherOrderRegression(linear_input_data, regression_type.linear, 0)
+    output = pedictHigherOrderRegression([12,32], coefficient_matrix, regression_type.linear, 0)
 else:
     print("\nUsage: python Multiple_Regression_transformation_v1.py <regression_type> <order>")
     print("\nRequired:\n", "<regression_type>: polynomial | logarithmic | reciprocal | power | exponential | linear")
     print("\nOptional:\n", "<order>: Number > 0")
+
+print("\nCoefficient Matrix final:\n",coefficient_matrix)
+print("\nPredicted Value of Y: ", output)
