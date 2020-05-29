@@ -25,6 +25,13 @@ print ("Params",params)
 print ("Stats",stats)
 print ("y_predicts",y_predicts)
 
+data_3_predicts = [[11,12,13,14,15,16,17,18,19,20]]
+y_predicts_3 = model.predicts(data_3_predicts)
+print ("Next Forcasting based on model:::")
+print ("Mileage inputs: ",data_3_predicts )
+print ("y_predicts for given inputs: ",y_predicts_3 )
+
+
 print("\nUNIT TEST 2\n")
 print ("Mileage and Price Data")
 mileage = [18, 18, 18, 18, 19, 19, 19, 20, 20, 20, 20, 20, 21, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 23, 23, 23, 23, 23, 24, 24, 25, 25, 25, 26, 26, 27, 27, 28, 30, 32, 33, 33, 33, 34, 35]
@@ -39,6 +46,11 @@ print ("Params",params)
 print ("Stats",stats)
 print ("y_predicts",y_predicts)
 
+data_1_predicts = [[40, 42, 44, 46, 48, 50]]
+y_predicts_1 = model.predicts(data_1_predicts)
+print ("Next Forcasting based on model:::")
+print ("Mileage inputs: ",data_1_predicts )
+print ("y_predicts for given inputs: ",y_predicts_1 )
 
 print("\nUNIT TEST 3\n")
 print ("Multiple Regression::: ")
@@ -56,3 +68,11 @@ print ("Params",params)
 print ("Stats",stats)
 print ("y_predicts",y_predicts)
 print("\n")
+data_2_predicts = [[62, 64, 69, 62, 64, 65],[10, 12, 11, 13, 8, 7]]
+y_predicts_2 = model.predicts(data_2_predicts)
+print ("Next Forcasting based on model:::")
+print ("Data inputs: ",data_2_predicts )
+print ("y_predicts for given inputs: ",y_predicts_2 )
+
+
+

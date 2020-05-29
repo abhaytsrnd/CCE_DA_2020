@@ -22,6 +22,25 @@ class Team3onlineLinearRegression:
         self.__stats__.append(stats1)
         #print("STATS id:",id(stats1))
 
+    def predicts(self, data:[[float]]) -> [float]:
+        logging.info("log: Online Linear Regression Model Predicts Invoked.")
+        y_predicts = [0.0 for i in range(len(data[0]))]
+        if(len(self.__data__) != len(data)):
+            logging.error("logError: Number of Independent Variables Should be equal to " + str(len(self.__data__)))
+            return y_predicts
+        
+        ####Calculate y predicts as per the solution
+        for j in range(len(data[0])):
+            y_cap = self.__params__[-1]
+            for i in range (len(self.__params__)-1):
+                #print ("i={0} j={1}".format(i,j))
+                y_cap = y_cap + self.__params__[i]*data[i][j]
+            y_predicts[j] = float(round(y_cap,3))
+        
+        #print ("Y_Predicts are:", y_predicts)
+        return y_predicts
+        
+        
         
     def fit(self):
         logging.info("log: Online Linear Regression Model Fit Invoked.")
