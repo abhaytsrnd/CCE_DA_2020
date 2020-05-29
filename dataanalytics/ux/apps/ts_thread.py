@@ -1,5 +1,6 @@
 import threading
 import os
+from dataanalytics.framework.file_utils import FileUtils
 
 class TSThread(threading.Thread):
 
@@ -13,5 +14,10 @@ class TSThread(threading.Thread):
       msg = '$$RUN Time Series Analysis Thread : ' + self.name
       print(msg)
       os.system('pwd')
-      os.system('python3 dataanalytics/ts/ARIMA_UI.py')
+      path = os.path.join('dataanalytics', 'ts')
+      path = os.path.join(path, 'ARIMA_UI.py')
+      cmd = 'python3 '+ path
+      print(cmd)
+      os.system(cmd)
       msg = '$$RUN Time Series Analysis Thread Task Completed : ' + self.name
+      print(msg)
