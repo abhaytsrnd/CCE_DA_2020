@@ -1,3 +1,4 @@
+import math
 from tkinter import *
 from tkinter.filedialog import askopenfile
 import tkinter as tk
@@ -8,17 +9,18 @@ import statsmodels.tsa.stattools
 from pandas import DataFrame
 
 import udf
-from linear_regression import LinearRegression
+from dataanalytics.stats_linear_regression.linear_regression import LinearRegression
 
 
 class MyWindow:
     flag = 0
     flag_nor = 0
     flag_sea = 0
+    past_title = ""
 
     def __init__(self, win):
         self.lbl0 = Label(win, text='Welcome To ARIMA Model')
-        self.lbl1 = Label(win, text='Input Excel file path')
+        self.lbl1 = Label(win, text='Input CSV file path')
         self.lbl2 = Label(win, text='Index')
         self.lbl3 = Label(win, text='Column Name')
         self.lbl4 = Label(win, text='Number of lags')
@@ -42,16 +44,19 @@ class MyWindow:
         self.b2.place(x=200, y=250)
 
     def get_data(self):
+        self.flag = 0
+        self.flag_nor = 0
+        self.flag_sea = 0
         self.file_path = str(self.t1.get())
         self.sheet_name = str(self.t2.get())
         self.column_index = str(self.t3.get())
         self.lag_count = int(self.t4.get())
-        df = pd.read_excel(str(self.t1.get()), sheet_name=str(self.t2.get()))
+        df = pd.read_csv(str(self.t1.get()))
         data_y = df[str(self.t3.get())].values.tolist()
         return self.plot_input_data(data_y, int(self.t4.get()))
 
     def open_file(self):
-        file = askopenfile(mode='r', filetypes=[('Excel Files', '*.xls')])
+        file = askopenfile(mode='r', filetypes=[('CSV Files', '*.csv')])
         self.entry_text.set(file.name)
 
     def get_x_axis_values(self, val):
@@ -124,6 +129,7 @@ class MyWindow:
         return PACF_list
 
     def plot_input_data(self, data_y, lag_count):
+        title = ""
         self.refined_Data = data_y
         data_y = [x for x in data_y if str(x) != 'nan']
         lag_count_val = lag_count
@@ -131,7 +137,19 @@ class MyWindow:
         y = data_y
         x = self.get_x_axis_values(len(data_y))
         plt.plot(x, y)
-        plt.title('Input Data')
+        if self.flag_nor != 0:
+            if self.flag_nor == 3:
+                title = title + str(self.flag_nor - 1) + " Normal Diff Data "
+            else:
+                title = title + str(self.flag_nor) + " Normal Diff Data "
+        if self.flag_sea != 0 :
+            if self.flag_sea == 3:
+                title = title + str(self.flag_sea - 1) + " Seasonal Diff Data "
+            else:
+                title = title + str(self.flag_sea) + " Seasonal Diff Data "
+        plt.title(title)
+        plt.xlabel('Samples')
+        plt.ylabel(str(self.t3.get()))
         wm = plt.get_current_fig_manager()
         wm.window.wm_geometry("600x500+0+0")
         fig = plt.figure()
@@ -143,9 +161,12 @@ class MyWindow:
         plt.axvline(0, color='black')
         plt.title('ACF Plot')
         r = []
+        r_neg = []
         for sign in range(len(x_acf)):
             r.append(1.96 / sqrt(len(data_y)))
+            r_neg.append(-(1.96 / sqrt(len(data_y))))
         plt.plot(x_acf, r, color='green')
+        plt.plot(x_acf, r_neg, color='green')
         ax3 = fig.add_subplot(3, 1, 3)
         y_pacf = self.PACF(data_y, lag_count_val)
         x_pacf = self.get_x_axis_values(len(y_pacf))
@@ -153,12 +174,21 @@ class MyWindow:
         plt.axhline(0, color='black')
         plt.axvline(0, color='black')
         plt.title('PACF Plot')
+        r = []
+        r_neg = []
+        for sign in range(len(x_pacf)):
+            r.append(1.96 / sqrt(len(data_y)))
+            r_neg.append(-(1.96 / sqrt(len(data_y))))
+        plt.plot(x_pacf, r, color='green')
+        plt.plot(x_pacf, r_neg, color='green')
         wm = plt.get_current_fig_manager()
         wm.window.wm_geometry("600x500+630+0")
         window.quit()
-        return self.get_stationarity_status(data_y)
+        return self.get_stationarity_status(data_y, "none")
 
-    def get_stationarity_status(self, data_y):
+    def get_stationarity_status(self, data_y, warn):
+        if str(warn) != "none":
+            warn.destroy()
         root = Tk()
         root.minsize(300, 200)
         root.geometry("500x100+400+500")
@@ -180,29 +210,36 @@ class MyWindow:
         self.flag = self.flag + 1
         diff.minsize(300, 200)
         diff.geometry("500x100+400+500")
-        diff_lbl = Label(diff, text='Proceed With...', font=('Verdana', 20))
-        diff_lbl.place(x=100, y=100)
+        diff_lbl = Label(diff, text='Proceed With...', font=('Verdana', 10))
+        diff_lbl.place(x=100, y=70)
         btn_seas = Button(diff, text='Seasonal Differencing', command=lambda: self.get_seasonal_freq(diff, data_y))
-        btn_normal = Button(diff, text='Normal Differencing', command=lambda: self.do_normal_differencing(diff, data_y))
-        btn_seas.place(x=100, y=70)
-        btn_normal.place(x=250, y=70)
+        btn_normal = Button(diff, text='Normal Differencing', command=lambda: self.do_normal_differencing(diff, data_y, root))
+        btn_seas.place(x=100, y=100)
+        btn_normal.place(x=250, y=100)
         if self.flag == 0:
             diff.destroy()
 
     def get_seasonal_freq(self, diff, data_y):
         diff.destroy()
         self.flag_sea = self.flag_sea + 1
-        if self.flag_sea == 3:
+        if self.flag_sea + self.flag_nor >= 6:
             self.flag = 0
-            self.flag_nor = 0
-            self.flag_sea = 0
             warn = Tk()
-            warn.minsize(300, 200)
+            warn.minsize(500, 500)
             warn.geometry("500x100+400+500")
-            warn_lbl = Label(warn, text='Max Differencing Limit Reached', font=('Verdana', 20))
-            warn_lbl.place(x=100, y=70)
-            btn_warn = Button(warn, text='Ok', command=lambda: self.warn_message(warn))
-            btn_warn.place(x=100, y=100)
+            warn_lbl = Label(warn, text='Max Seasonal and Normal Differencing Limit of 2 times each reached', font=('Verdana', 10))
+            warn_lbl.place(x=5, y=70)
+            btn_warn = Button(warn, text='Ok', command=lambda: self.get_p_q(warn))
+            btn_warn.place(x=5, y=100)
+        elif self.flag_sea >= 3:
+            self.flag = 0
+            warn = Tk()
+            warn.minsize(500, 500)
+            warn.geometry("500x100+400+500")
+            warn_lbl = Label(warn, text='Max Seasonal Differencing Limit of 2 Reached. Try Normal Diff', font=('Verdana', 10))
+            warn_lbl.place(x=5, y=70)
+            btn_warn = Button(warn, text='Ok', command=lambda: self.get_stationarity_status(data_y, warn))
+            btn_warn.place(x=5, y=100)
         if self.flag != 0:
             seasonal = Tk()
             seasonal.minsize(300, 200)
@@ -227,19 +264,8 @@ class MyWindow:
             data_seaso_diff.append(temp_data[i] - Y[i])
         return self.plot_input_data(data_seaso_diff, self.lag_count)
 
-    def do_normal_differencing(self, diff, Y):
-        self.flag_nor = self.flag_nor + 1
-        if self.flag_nor == 3:
-            self.flag = 0
-            self.flag_nor = 0
-            self.flag_sea = 0
-            warn = Tk()
-            warn.minsize(300, 200)
-            warn.geometry("500x100+400+500")
-            warn_lbl = Label(warn, text='Max Differencing Limit Reached', font=('Verdana', 10))
-            warn_lbl.place(x=100, y=70)
-            btn_warn = Button(warn, text='Ok', command=lambda: self.warn_message(warn))
-            btn_warn.place(x=100, y=100)
+    def do_normal_differencing(self, diff, Y, root):
+        skip = 0
         diff.destroy()
         temp_data = []
         for i in range(len(Y) - 1):
@@ -248,7 +274,26 @@ class MyWindow:
         data_normal_diff = []
         for i in range(len(temp_data)):
             data_normal_diff.append(temp_data[i] - Y[i])
-        if self.flag != 0:
+        self.flag_nor = self.flag_nor + 1
+        if self.flag_sea + self.flag_nor >= 5:
+            warn = Tk()
+            skip = 1
+            warn.minsize(500, 500)
+            warn.geometry("500x100+400+500")
+            warn_lbl = Label(warn, text='Max Seasonal and Normal Differencing Limit of 2 times each reached', font=('Verdana', 10))
+            warn_lbl.place(x=5, y=70)
+            btn_warn = Button(warn, text='Ok', command=lambda: self.get_p_q(warn))
+            btn_warn.place(x=5, y=100)
+        elif self.flag_nor >= 3:
+            skip = 1
+            warn = Tk()
+            warn.minsize(500, 500)
+            warn.geometry("500x100+400+500")
+            warn_lbl = Label(warn, text='Max Normal Differencing Limit of 2 Reached. Try Seasonal Diff', font=('Verdana', 10))
+            warn_lbl.place(x=5, y=70)
+            btn_warn = Button(warn, text='Ok', command=lambda: self.get_stationarity_status(Y, warn))
+            btn_warn.place(x=5, y=100)
+        if skip == 0:
             return self.plot_input_data(data_normal_diff, self.lag_count)
 
     def get_p_q(self, root):
@@ -273,32 +318,45 @@ class MyWindow:
         q_list.reverse()
         q = q_list[0] + 1
         final = Tk()
-        final.minsize(600, 270)
+        final.minsize(300, 270)
         p_lbl = Label(final, text='Suggested p Value is ' + str(p), font=('Verdana', 10))
         q_lbl = Label(final, text='Suggested q Value is ' + str(q), font=('Verdana', 10))
         p_val = Label(final, text='Set p Value to ', font=('Verdana', 10))
         q_val = Label(final, text='Set q Value to ', font=('Verdana', 10))
         p_val_user = Entry(final)
         q_val_user = Entry(final)
-        p_lbl.place(x=100, y=20)
-        p_val.place(x=100, y=70)
-        p_val_user.place(x=200, y=70)
-        q_lbl.place(x=100, y=120)
-        q_val.place(x=100, y=170)
-        q_val_user.place(x=200, y=170)
+        p_lbl.place(x=40, y=20)
+        p_val.place(x=40, y=70)
+        p_val_user.place(x=80, y=70)
+        q_lbl.place(x=40, y=120)
+        q_val.place(x=40, y=170)
+        q_val_user.place(x=80, y=170)
         btn_submit = Button(final, text='Submit', command=lambda: self.cal_coeff(final, p_val_user.get(), q_val_user.get()))
-        btn_submit.place(x=100, y=220)
+        btn_submit.place(x=40, y=220)
         # window.destroy()
+
+    def AIC(self, p, q, data):
+        data = [x for x in data if str(x) != 'nan']
+        n = len(data)
+        mean = sum(data) / len(data)
+        variance = sum((i - mean) ** 2 for i in data) / len(data)
+        m = p + q + 1
+        aic_value = n * (1 + math.log10(2 * (22 / 7))) + (n * math.log10(variance)) + (2 * m)
+        return round(aic_value, 3)
 
     def cal_coeff(self, final, p, q):
         data_z = self.refined_Data
-        final.destroy()
+        ref_data = {'Data': data_z}
+        df = pd.DataFrame(ref_data)
+        df.to_csv('Refined_Data.csv', index=True, header=True)
+        # final.destroy()
         plt.close('all')
         p = int(p)
         q = int(q)
+        aic_val = self.AIC(p, q, data_z)
         if q == 0:
-            df = pd.read_excel(str(self.t1.get()), sheet_name=str(self.t2.get()))
-            data_y = df[str(self.t3.get())]
+            df = pd.read_csv("Refined_Data.csv")
+            data_y = df["Data"]
             ip_ts = data_y.dropna().to_numpy()
             y_var = ip_ts[p:].tolist()
             x_var = []
@@ -312,13 +370,15 @@ class MyWindow:
             reg_coeff = reg_out[1]
             for j in range(1, p+1):
                 Yt = Yt + "(" + str(round(reg_coeff[j-1], 3)) + ")" + "*Yt-" + str(j) + " + "
-            Yt = "Yt = " + str(Yt[:-2])
+            Yt = "Yt = 1 + " + str(Yt[:-2])
             reg = Tk()
-            reg.minsize(800, 150)
-            p_lbl = Label(reg, text='AR Equation is...', font=('Verdana', 10))
+            reg.minsize(400, 75)
+            p_lbl = Label(reg, text='AR Equation is for p = ' + str(p), font=('Verdana', 10))
             q_lbl = Label(reg, text=Yt, font=('Verdana', 10))
-            p_lbl.place(x=100, y=20)
-            q_lbl.place(x=100, y=70)
+            aic_lbl = Label(reg, text="AIC for the model is " + str(aic_val), font=('Verdana', 10))
+            p_lbl.place(x=30, y=20)
+            q_lbl.place(x=30, y=70)
+            aic_lbl.place(x=30, y=120)
         if p == 0:
             data_y = data_z
             data_y = [x for x in data_y if str(x) != 'nan']
@@ -349,16 +409,18 @@ class MyWindow:
             elif q == 2:
                 teta_2 = (covariance[1]) / (white_noise_var)
                 teta_1 = (covariance[0]) / ((white_noise_var) * (1 + teta_2))
-                Yt = 'Yt = ' + str(1) + ' + ' + str(round(teta_1, 3)) + '*' + 'epsilon_t-1' + ' + ' + str(round(teta_2, 3)) \
+                Yt = 'Yt = ' + str(1) + ' + ' + str(round(teta_1, 3)) + '*' + 'epsilon_t-1' + ' + ' + str(round(teta_2-1, 3)) \
                      + '*' + 'epsilon_t-2'
                 teta_list.append(teta_1)
                 teta_list.append(teta_2)
             reg = Tk()
-            reg.minsize(800, 150)
-            p_lbl = Label(reg, text='MA Equation is...', font=('Verdana', 10))
+            reg.minsize(400, 75)
+            p_lbl = Label(reg, text='MA Equation for q = ' + str(q), font=('Verdana', 10))
             q_lbl = Label(reg, text=Yt, font=('Verdana', 10))
-            p_lbl.place(x=100, y=20)
-            q_lbl.place(x=100, y=70)
+            aic_lbl = Label(reg, text="AIC for the model is " + str(aic_val), font=('Verdana', 10))
+            p_lbl.place(x=30, y=20)
+            q_lbl.place(x=30, y=70)
+            aic_lbl.place(x=30, y=120)
 
 
 window = Tk()
