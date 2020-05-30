@@ -15,7 +15,7 @@ class TSThread(threading.Thread):
       print(msg)
       os.system('pwd')
       path = os.path.join('dataanalytics', 'ts')
-      path = os.path.join(path, 'ARIMA_UI.py')
+      path = os.path.join(path, 'Landing_Page.py')
       cmd = 'python3 '+ path
       print(cmd)
       os.system(cmd)
