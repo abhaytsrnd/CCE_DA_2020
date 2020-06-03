@@ -71,7 +71,7 @@ def generate_table(dataframe, max_rows=5):
 ### Regression Common ###
 
 def get_anova_div(anova: {}):
-    anova_df = pd.DataFrame(columns=['Source', 'Sum of Squares', 'Degrees fo Freedom', 'Mean Square', 'F Statistics'])
+    anova_df = pd.DataFrame(columns=['Source', 'Sum of Squares', 'Degrees fo Freedom', 'Mean Square', 'F Statistic'])
     anova_df.loc[0] = ['Regression', anova['SSR'],anova['DFR'], anova['MSR'], round(anova['F'], 4)]
     anova_df.loc[1] = ['Error', anova['SSE'],anova['DFE'], anova['MSE'], '']
     anova_df.loc[2] = ['Total', anova['SST'],anova['DFT'], anova['S2'], '']

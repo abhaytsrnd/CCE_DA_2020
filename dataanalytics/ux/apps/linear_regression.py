@@ -251,7 +251,6 @@ def stats_table_and_linear_regression(json_ordered_data):
     for i in range(len(x_col)):
         x = dff[x_col[i]].values.tolist()
         data[i] = x
-
     ##Team 3 API Integration
     try:
         model = LinearRegression()
@@ -280,21 +279,35 @@ def stats_table_and_linear_regression(json_ordered_data):
     df_coeff = common.get_coeff_df(params, x_col)
     table2 = dbc.Table.from_dataframe(df_coeff, striped=True, bordered=True, hover=True, style = common.table_style)
 
-    trace_1 = go.Scatter(x = list(range(len(y))), y = ycap,
-                    name = 'Y Predicted (ŷ)',
-                    line = dict(width = 2,
-                                color = 'rgb(229, 151, 50)'))
-    trace_2 = go.Scatter(x = list(range(len(y))), y = y,
-                        name = 'Y Actual',
-                        line = dict(width = 2,
-                                    color = 'rgb(106, 181, 135)'))
-    ydiff = [y[i] - ycap[i] for i in range(len(y))]
-    trace_3 = go.Scatter(x = list(range(len(y))), y = ydiff,
-                        line = dict(width = 2,
-                                    color = 'rgb(236, 10, 15)'))
+    if len(data) == 1:
+        trace_x = data[0]
+        x_title = "x ("+ str(x_col[0]) +")"
 
-    fig1 = go.Figure(data = [trace_1, trace_2], layout = y_ycap_title)
-    fig2 = go.Figure(data = [trace_3], layout = error_title)
+        trace_actual = go.Scatter(x = trace_x, y = y,
+                            name = 'Y Actual',
+                            mode='markers',
+                            marker=dict(color = 'rgb(106, 181, 135)'))
+    else:
+        trace_x = list(range(len(y)))
+        x_title = 'Sequence of data points'
+
+        trace_actual = go.Scatter(x = trace_x, y = y,
+                            name = 'Y Actual',
+                            line = dict(width = 2, color ='rgb(106, 181, 135)'))
+
+    trace_predict = go.Scatter(x = trace_x, y = ycap,
+                    name = 'Y Predicted (ŷ)',
+                    line = dict(width = 2, color = 'rgb(229, 151, 50)'))
+
+    ydiff = [y[i] - ycap[i] for i in range(len(y))]
+    trace_error = go.Scatter(x = list(range(len(y))), y = ydiff,
+                        line = dict(width = 2, color = 'rgb(236, 10, 15)'))
+
+    y_title = "y,ŷ("+ str(y_col) +")"
+    y_ycap_title = go.Layout(title = 'Actual vs Predicted Y Plot', hovermode = 'closest', xaxis={'title': x_title}, yaxis={'title': y_title})
+
+    fig1 = go.Figure(data = [trace_predict, trace_actual], layout = y_ycap_title)
+    fig2 = go.Figure(data = [trace_error], layout = error_title)
     error_mean = html.H2('Error Mean = ' + str(round(db.get('lr.error_mean'), 4)))
 
     ##Team 5 API Integration
