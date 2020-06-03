@@ -9,12 +9,22 @@ Created on Wed Apr 22 23:41:14 2020
 
 
 import numpy as np
-from linear_regression import LinearRegression
-from statistics import Statistics
+
 import matplotlib.pyplot as plt
 import math
 #import matplotlib.pylab as plt
 #from pylab import rcParams
+
+#################################
+# This has to be added to find the custom packages
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/../../')
+#################################
+
+from dataanalytics.stats_linear_regression.linear_regression import LinearRegression
+from dataanalytics.stats_linear_regression.statistics import Statistics
 
 def shift(ip, n):
     op = np.empty_like(ip)
@@ -32,11 +42,11 @@ def pcf_data(ip, n):
         lag_op = shift(ip, i)
         op_tmp = list(Statistics.covariance(ip[i:], lag_op[i:]))
         op_list.append([i, op_tmp[1]])
-    return op_list 
+    return op_list
 
 def create_bar_plot(x_col, y_col, x_label,
                     y_label, graph_title, subplot_n
-                    , start, end, row_span, col_span, 
+                    , start, end, row_span, col_span,
                     ts_len = None, lag_n = 25):
     subplot_n = plt.subplot2grid(start, end, rowspan=row_span, colspan=col_span)
     subplot_n.bar(x_col, y_col)
@@ -47,7 +57,7 @@ def create_bar_plot(x_col, y_col, x_label,
     subplot_n.set_xlabel(x_label)
     subplot_n.set_ylabel(y_label)
     subplot_n.set_title(graph_title)
-    
+
 def lag_diff(ip, lag_n):
     lag_op = shift(ip, lag_n)
     op_list = ip[lag_n:] - lag_op[lag_n:]
@@ -63,7 +73,7 @@ def pq_param(acf_pacf_df, ts_len):
 
 
 #un-used function
-def create_line_plot(x_col, y_col, plot_color, plot_style, 
+def create_line_plot(x_col, y_col, plot_color, plot_style,
                      x_label, y_label, graph_title, subplot_n
                      , start, end, row_span, col_span):
     subplot_n = plt.subplot2grid(start, end, rowspan=row_span, colspan=col_span)
@@ -110,8 +120,5 @@ y_var_array = np.asarray(y_lst)
 
 AR_res = lib.linear_regression.LinearRegression.fit(x_var[p:], y_var[p:], tmp_lag_data[p:])
 
-AR_res = lib.linear_regression.LinearRegression.fit(x_var_array, y_var_array, y_var_array)     
-   ''' 
-    
-
-    
+AR_res = lib.linear_regression.LinearRegression.fit(x_var_array, y_var_array, y_var_array)
+   '''
