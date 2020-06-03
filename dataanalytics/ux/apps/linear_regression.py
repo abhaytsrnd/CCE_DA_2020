@@ -243,14 +243,17 @@ def stats_table_and_linear_regression(json_ordered_data):
         "")
     dff = pd.read_json(json_ordered_data, orient='split')
     col = list(dff.columns)
-    y = list(dff[col[-1]])
-    data = []
     x_col = col[:-1]
     y_col = col[-1]
+
+    if len(x_col) == 1:
+        dff = dff.sort_values(by=x_col)
+
     data = [[] for i in range(len(x_col))]
     for i in range(len(x_col)):
         x = dff[x_col[i]].values.tolist()
         data[i] = x
+    y = list(dff[col[-1]])
     ##Team 3 API Integration
     try:
         model = LinearRegression()
@@ -282,7 +285,6 @@ def stats_table_and_linear_regression(json_ordered_data):
     if len(data) == 1:
         trace_x = data[0]
         x_title = "x ("+ str(x_col[0]) +")"
-
         trace_actual = go.Scatter(x = trace_x, y = y,
                             name = 'Y Actual',
                             mode='markers',
@@ -290,7 +292,6 @@ def stats_table_and_linear_regression(json_ordered_data):
     else:
         trace_x = list(range(len(y)))
         x_title = 'Sequence of data points'
-
         trace_actual = go.Scatter(x = trace_x, y = y,
                             name = 'Y Actual',
                             line = dict(width = 2, color ='rgb(106, 181, 135)'))
@@ -300,11 +301,12 @@ def stats_table_and_linear_regression(json_ordered_data):
                     line = dict(width = 2, color = 'rgb(229, 151, 50)'))
 
     ydiff = [y[i] - ycap[i] for i in range(len(y))]
-    trace_error = go.Scatter(x = list(range(len(y))), y = ydiff,
+    trace_error = go.Scatter(x = trace_x, y = ydiff,
                         line = dict(width = 2, color = 'rgb(236, 10, 15)'))
 
     y_title = "y,ŷ("+ str(y_col) +")"
     y_ycap_title = go.Layout(title = 'Actual vs Predicted Y Plot', hovermode = 'closest', xaxis={'title': x_title}, yaxis={'title': y_title})
+    error_title = go.Layout(title = 'Error Plot', hovermode = 'closest', xaxis={'title': x_title}, yaxis={'title': 'Error = y - ŷ'})
 
     fig1 = go.Figure(data = [trace_predict, trace_actual], layout = y_ycap_title)
     fig2 = go.Figure(data = [trace_error], layout = error_title)

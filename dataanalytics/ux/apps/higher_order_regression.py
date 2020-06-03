@@ -280,21 +280,26 @@ def stats_table_and_hor_regression(json_ordered_data, hor_order):
     df_coeff = common.hor_get_coeff_df(params)
     table2 = dbc.Table.from_dataframe(df_coeff, striped=True, bordered=True, hover=True, style = common.table_style)
 
-    trace_1 = go.Scatter(x = list(range(len(y))), y = ycap,
-                    name = 'Y Predicted (ŷ)',
-                    line = dict(width = 2,
-                                color = 'rgb(229, 151, 50)'))
-    trace_2 = go.Scatter(x = list(range(len(y))), y = y,
+    trace_actual = go.Scatter(x = x, y = y,
                         name = 'Y Actual',
-                        line = dict(width = 2,
-                                    color = 'rgb(106, 181, 135)'))
-    ydiff = [y[i] - ycap[i] for i in range(len(y))]
-    trace_3 = go.Scatter(x = list(range(len(y))), y = ydiff,
-                        line = dict(width = 2,
-                                    color = 'rgb(236, 10, 15)'))
+                        mode='markers',
+                        marker=dict(color = 'rgb(106, 181, 135)'))
 
-    fig1 = go.Figure(data = [trace_1, trace_2], layout = y_ycap_title)
-    fig2 = go.Figure(data = [trace_3], layout = error_title)
+    trace_predict = go.Scatter(x = x, y = ycap,
+                    name = 'Y Predicted (ŷ)',
+                    line = dict(width = 2, color = 'rgb(229, 151, 50)'))
+
+    ydiff = [y[i] - ycap[i] for i in range(len(y))]
+    trace_error = go.Scatter(x = x, y = ydiff,
+                        line = dict(width = 2, color = 'rgb(236, 10, 15)'))
+
+    x_title = "x ("+ str(x_col[0]) +")"
+    y_title = "y,ŷ("+ str(y_col) +")"
+    y_ycap_title = go.Layout(title = 'Actual vs Predicted Y Plot', hovermode = 'closest', xaxis={'title': x_title}, yaxis={'title': y_title})
+    error_title = go.Layout(title = 'Error Plot', hovermode = 'closest', xaxis={'title': x_title}, yaxis={'title': 'Error = y - ŷ'})
+
+    fig1 = go.Figure(data = [trace_predict, trace_actual], layout = y_ycap_title)
+    fig2 = go.Figure(data = [trace_error], layout = error_title)
     error_mean = html.H2('Error Mean = ' + str(round(db.get('hor.error_mean'), 4)))
 
     ##Team 5 API Integration

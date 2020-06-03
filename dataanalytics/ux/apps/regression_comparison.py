@@ -133,7 +133,7 @@ def get_compare_div(file):
     df.loc[3] = ['Dependent Variable :'] + get_property(keys, 'y_col')
     df.loc[4] = ['Order :'] + get_property(keys, 'order')
     df.loc[5] = ['No of Coefficients Estimated :'] + get_property(keys, 'no_of_coeff')
-    df.loc[6] = ['F Statistics :'] + get_property(keys, 'anova', 'F')
+    df.loc[6] = ['F Statistic :'] + get_property(keys, 'anova', 'F')
     df.loc[7] = ['Cofficient of Determination :'] + get_property(keys, 'anova', 'R2')
     df.loc[8] = ['Error Mean :'] + get_property(keys, 'error_mean')
     df.round(4)
@@ -206,7 +206,7 @@ def get_model_div(key):
         coeff_div,
         html.H2('Error Mean = ' + str(round(error_mean,4))),
         html.Br(),
-        html.H2('Anova'),
+        html.H2('ANOVA Table'),
         anova_div
     ])
     return div
