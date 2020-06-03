@@ -8,8 +8,16 @@ from math import sqrt
 import statsmodels.tsa.stattools
 from pandas import DataFrame
 
-import udf
+#################################
+# This has to be added to find the custom packages
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/../../')
+#################################
+
 from dataanalytics.stats_linear_regression.linear_regression import LinearRegression
+import dataanalytics.ts.udf
 
 
 class MyWindow:

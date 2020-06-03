@@ -20,20 +20,23 @@ class MyWindow:
 
     def run_arima(self):
         cmd = "python3 " + self.path('ARIMA_UI.py')
-        subprocess.call(cmd)
+        os.system(cmd)
 
     def run_sdg(self):
         cmd = "python3 " + self.path('sythetic_data_generation.py')
-        subprocess.call(cmd)
+        os.system(cmd)
 
     def run_st(self):
         cmd = "python3 " + self.path('SmoothingTechniques.py')
-        subprocess.call(cmd)
+        os.system(cmd)
 
     def path(self, file: str):
-        path = os.path.join(str(os.getcwd()), 'dataanalytics')
-        path = os.path.join(path, 'ts')
+        print('### Path : '+ file)
+        os.system('pwd')
+        #path = os.path.join(str(os.getcwd()), 'dataanalytics')
+        path = os.path.join('dataanalytics', 'ts')
         path = os.path.join(path, file)
+        print('### Path : '+ path)
         return str(path)
 
 window = Tk()

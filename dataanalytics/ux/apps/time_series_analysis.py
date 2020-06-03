@@ -35,13 +35,8 @@ layout = html.Div(children=[
 def ts_do_time_series_analysis(n_clicks):
     msg = 'Starting Time Series Analysis ...'
     print(msg)
-    try:
-        ts_thread_1 = TSThread(n_clicks, "Thread-"+ str(n_clicks), 1)
-        ts_thread_1.start()
-        msg = 'Time Series Analysis Started.'
-    except:
-        msg = 'Error: unable to start Thread!!'
-        print(msg)
-        return common.error_msg(msg)
+    ts_thread_1 = TSThread(n_clicks, "Thread-"+ str(n_clicks), 1)
+    ts_thread_1.start()
+    msg = 'Time Series Analysis Started.'
     print(msg)
     return common.success_msg(msg)
