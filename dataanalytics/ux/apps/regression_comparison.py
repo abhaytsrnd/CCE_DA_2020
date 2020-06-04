@@ -18,6 +18,7 @@ from dataanalytics.stat_anova.anova import get_anova
 
 layout = html.Div(children=[
     common.navbar("Regression Comparison"),
+    html.Div([], style = {'padding': '30px'}),
     html.Br(),
     html.Div([
         dbc.Button("Load Cleaned Files & Regression Model", color="info", id = 'rc-load-model', className="mr-4"),

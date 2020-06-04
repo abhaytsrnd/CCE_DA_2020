@@ -24,6 +24,7 @@ def navbar(page_name: str):
         brand_href="/",
         color="#25383C",
         dark=True,
+        fixed='top',
         style = {'font-size': '16px'},
         brand_style = {'font-size': '16px'}
     )
@@ -89,7 +90,7 @@ def get_stats_df(summary: {}, x_col: [], y_col: str):
     df_stats = pd.DataFrame(summary)
     c = [y_col] + x_col
     df_stats['Var_Name'] = c
-    df_stats = df_stats[['Var_Name','count','min','max','mean','variance','std','covariance','r', 'pr']]
+    df_stats = df_stats[['Var_Name','count','min','max','mean','variance','std','covariance','rt', 'r', 'pr']]
     return df_stats
 
 def get_coeff_df(params: [], x_col: []):

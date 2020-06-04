@@ -10,6 +10,7 @@ APIs
 8. predicts
 """
 import logging
+import math
 
 from dataanalytics.stats_linear_regression.statistics import Statistics
 from dataanalytics.stats_linear_regression.matrix import Matrix
@@ -134,16 +135,20 @@ class LinearRegression:
 
     def __stats(self, data:[[float]], y:[float]) -> []:
         stats = [{} for i in range(len(data) + 1)]
+        rt = 1.96 / math.sqrt(len(data[0]))
         y_stats = Statistics.describe(y)
         (y_variance, y_std) = Statistics.variance(y, y_stats["mean"])
         y_stats["covariance"] = y_variance
+        y_stats["rt"] = rt
         y_stats["r"] = 1.0
         y_stats["pr"] = 1.0
+
         stats[0] = y_stats
         for i in range(len(data)):
             s = Statistics.describe(data[i])
             (covariance, r) = Statistics.covariance(data[i], y, s["mean"], y_stats["mean"])
             s["covariance"] = covariance
+            s["rt"] = rt
             s["r"] = r
             s["pr"] = self.__partial_mat__[0][i+1]
             stats[i+1] = s

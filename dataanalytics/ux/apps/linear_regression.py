@@ -30,6 +30,7 @@ error_fig = go.Figure(data = [], layout = error_title)
 
 layout = html.Div(children=[
     common.navbar("Linear Regression"),
+    html.Div([], style = {'padding': '30px'}),
     html.Br(),
     html.Div([
         html.H2("Select a file from all the cleaned files:"),

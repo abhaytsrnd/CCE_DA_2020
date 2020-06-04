@@ -16,6 +16,7 @@ from dataanalytics.data_cleaning.team2_data_cleaning import data_cleaning
 
 layout = html.Div([
     common.navbar("Home"),
+    html.Div([], style = {'padding': '30px'}),
     html.Br(),
     html.Div(children='A tool developed as part of IISc CCE Data Analytics Course, 2020',
             style={'textAlign': 'center', 'font-size': '16px'}),

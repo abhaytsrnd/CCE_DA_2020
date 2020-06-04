@@ -18,6 +18,7 @@ from dataanalytics.ux.apps.ts_thread import TSThread
 
 layout = html.Div(children=[
     common.navbar("Time Series Analysis"),
+    html.Div([], style = {'padding': '30px'}),
     html.Br(),
     html.Div([
         html.H2("Perform Time Series Analysis"),
