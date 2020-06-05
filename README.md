@@ -1,4 +1,4 @@
-# CCE_DA_2020
+# CCE_DA_2020_Online
 Data analysis tool as per contents covered in IISc, Bangalore CCE DA 2020 course
 
 This branch contains the Online team modules.
