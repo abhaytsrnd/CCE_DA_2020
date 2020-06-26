@@ -1,7 +1,10 @@
-Clone or download 'master' to your local system
+Hi, You can refer the demo video on tool capability.
 
-step1: install pandas and dash using command -> pip3 install requirements.txt
+Steps to use this tool:
+Step1: Clone or download 'master' to your local system
 
-step2: open python/anaconda shell and cd to required directory where the downloaded files are saved.
+Step2: install pandas and dash using command -> pip3 install requirements.txt
 
-step3: use command -> python3 app_main.py , open the webpage with the link obtained.
+Step3: open python/anaconda shell and cd to required directory where the downloaded files are saved.
+
+Step4: use command -> python3 app_main.py , open the webpage with the link obtained.
